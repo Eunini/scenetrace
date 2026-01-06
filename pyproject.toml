@@ -1,0 +1,31 @@
+[project]
+name = "scenetrace"
+version = "1.0.0"
+description = "Evidence-first video search with a trained, bounded tool-routing agent."
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "fastapi>=0.115,<1", "uvicorn>=0.34,<1", "python-multipart>=0.0.20,<1",
+  "pydantic>=2.10,<3", "pillow>=11,<13", "numpy>=2,<3", "httpx>=0.28,<1",
+  "torch==2.14.1", "transformers==5.21.0", "peft==0.21.2",
+  "safetensors>=0.5,<1", "opencv-python-headless>=4.11,<5",
+]
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "ruff>=0.12,<1", "huggingface-hub>=1,<2"]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+[tool.hatch.build.targets.wheel]
+packages = ["backend/scenetrace"]
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]

@@ -46,11 +46,14 @@ def option_scores(model, encoded):
     import torch
 
     ids, attention, targets = encoded
-    logits = model(input_ids=ids, attention_mask=attention).logits[:, :-1]
-    token_logps = torch.log_softmax(logits.float(), -1).gather(
-        -1, ids[:, 1:, None]
-    ).squeeze(-1)
-    scores = (token_logps * targets).sum(-1) / targets.sum(-1).clamp(min=1)
+    backbone = model.get_base_model() if hasattr(model, "get_base_model") else model
+    hidden = backbone.model(input_ids=ids, attention_mask=attention).last_hidden_state[:, :-1]
+    selected = targets.bool()
+    logits = backbone.get_output_embeddings()(hidden[selected])
+    logps = torch.log_softmax(logits.float(), -1).gather(-1, ids[:, 1:][selected, None]).squeeze(-1)
+    row_ids = selected.nonzero()[:, 0]
+    scores = torch.zeros(len(ids), device=logps.device).scatter_add(0, row_ids, logps)
+    scores = scores / targets.sum(-1).clamp(min=1)
     return scores.reshape(-1, len(PLANS))
 
 

@@ -31,7 +31,7 @@ class Vision:
         torch.set_num_threads(2)
         self.processor = CLIPProcessor.from_pretrained(CLIP_MODEL, revision=CLIP_REVISION)
         self.model = CLIPModel.from_pretrained(
-            CLIP_MODEL, revision=CLIP_REVISION, use_safetensors=True
+            CLIP_MODEL, revision=CLIP_REVISION, use_safetensors=False, weights_only=True
         ).eval()
 
     def images(self, paths):
@@ -71,7 +71,7 @@ class Vision:
             if self.detector is None:
                 self.detector_processor = DetrImageProcessor.from_pretrained(DETR_MODEL, revision=DETR_REVISION)
                 self.detector = DetrForObjectDetection.from_pretrained(
-                    DETR_MODEL, revision=DETR_REVISION, use_safetensors=True,
+                    DETR_MODEL, revision=DETR_REVISION, use_safetensors=False, weights_only=True,
                     backbone_kwargs={"use_pretrained_backbone": False},
                 ).eval()
             inputs = self.detector_processor(images=image, return_tensors="pt")

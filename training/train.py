@@ -112,7 +112,14 @@ def main():
         losses = []
         for start in range(0, len(train), 8):
             batch = completion_batch(tokenizer, train[start:start + 8])
-            loss = model(**batch).loss
+            # Project only completion positions into the 49k-token vocabulary. This is
+            # exactly completion-masked causal cross-entropy with far less CPU memory.
+            base = model.get_base_model()
+            hidden = base.model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"]).last_hidden_state[:, :-1]
+            targets = batch["labels"][:, 1:]
+            selected = targets != -100
+            logits = base.get_output_embeddings()(hidden[selected])
+            loss = torch.nn.functional.cross_entropy(logits.float(), targets[selected])
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()

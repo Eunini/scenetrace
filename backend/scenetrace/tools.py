@@ -46,12 +46,36 @@ class MaskArgs(FrameArgs):
 
 
 CATALOG = {
-    "search_frames": {"schema": SearchArgs, "description": "Rank sampled frames using CLIP cosine similarity.", "approval": False},
-    "retrieve_frame": {"schema": FrameArgs, "description": "Resolve a frame to its source video and timestamp.", "approval": False},
-    "query_library": {"schema": LibraryArgs, "description": "Run a parameterized video inventory or aggregate SQL query.", "approval": False},
-    "detect_objects": {"schema": FrameArgs, "description": "Run DETR on one selected frame; returns labeled bounding boxes.", "approval": False},
-    "request_export": {"schema": ExportArgs, "description": "Prepare a bounded clip export for explicit visitor approval.", "approval": True},
-    "mask_object": {"schema": MaskArgs, "description": "Run GrabCut using a selected bounding box; not semantic segmentation.", "approval": False},
+    "search_frames": {
+        "schema": SearchArgs,
+        "description": "Rank sampled frames using CLIP cosine similarity.",
+        "approval": False,
+    },
+    "retrieve_frame": {
+        "schema": FrameArgs,
+        "description": "Resolve a frame to its source video and timestamp.",
+        "approval": False,
+    },
+    "query_library": {
+        "schema": LibraryArgs,
+        "description": "Run a parameterized video inventory or aggregate SQL query.",
+        "approval": False,
+    },
+    "detect_objects": {
+        "schema": FrameArgs,
+        "description": "Run DETR on one selected frame; returns labeled bounding boxes.",
+        "approval": False,
+    },
+    "request_export": {
+        "schema": ExportArgs,
+        "description": "Prepare a bounded clip export for explicit visitor approval.",
+        "approval": True,
+    },
+    "mask_object": {
+        "schema": MaskArgs,
+        "description": "Run GrabCut using a selected bounding box; not semantic segmentation.",
+        "approval": False,
+    },
 }
 
 
@@ -70,17 +94,31 @@ class ToolBudget:
         start = time.perf_counter()
         try:
             result = function(*args)
-            self.trace.append({"tool": name, "status": "ok", "milliseconds": round((time.perf_counter() - start) * 1000)})
+            self.trace.append(
+                {
+                    "tool": name,
+                    "status": "ok",
+                    "milliseconds": round((time.perf_counter() - start) * 1000),
+                }
+            )
             return result
         except (ValueError, RuntimeError) as exc:
-            self.trace.append({"tool": name, "status": "error", "milliseconds": round((time.perf_counter() - start) * 1000)})
+            self.trace.append(
+                {
+                    "tool": name,
+                    "status": "error",
+                    "milliseconds": round((time.perf_counter() - start) * 1000),
+                }
+            )
             raise ToolError(str(exc)) from None
 
 
 def retrieve_frame(store, owner, frame_id):
-    row = store.one("SELECT f.id,f.video_id,f.seconds,f.sharpness,v.filename,v.duration "
-                    "FROM frames f JOIN videos v ON v.id=f.video_id WHERE f.id=? AND f.owner=?",
-                    (frame_id, owner))
+    row = store.one(
+        "SELECT f.id,f.video_id,f.seconds,f.sharpness,v.filename,v.duration "
+        "FROM frames f JOIN videos v ON v.id=f.video_id WHERE f.id=? AND f.owner=?",
+        (frame_id, owner),
+    )
     if not row:
         raise ToolError("That frame is not available in this workspace.")
     row["image_url"] = f"/api/frames/{frame_id}/image"
@@ -89,8 +127,10 @@ def retrieve_frame(store, owner, frame_id):
 
 
 def search_frames(store, vision, owner, args: SearchArgs):
-    sql = ("SELECT f.*,v.filename,v.duration FROM frames f JOIN videos v ON f.video_id=v.id "
-           "WHERE f.owner=? AND v.state='ready' AND f.sharpness>=?")
+    sql = (
+        "SELECT f.*,v.filename,v.duration FROM frames f JOIN videos v ON f.video_id=v.id "
+        "WHERE f.owner=? AND v.state='ready' AND f.sharpness>=?"
+    )
     parameters = [owner, args.min_sharpness]
     if args.video_id:
         sql += " AND f.video_id=?"
@@ -104,7 +144,10 @@ def search_frames(store, vision, owner, args: SearchArgs):
     candidates = sorted(zip(rows, scores, strict=True), key=lambda x: -x[1])
     output = []
     for row, score in candidates:
-        if any(r["video_id"] == row["video_id"] and abs(r["seconds"] - row["seconds"]) < 3 for r in output):
+        if any(
+            r["video_id"] == row["video_id"] and abs(r["seconds"] - row["seconds"]) < 3
+            for r in output
+        ):
             continue
         item = retrieve_frame(store, owner, row["id"])
         item["similarity"] = round(float(score), 4)
@@ -115,8 +158,9 @@ def search_frames(store, vision, owner, args: SearchArgs):
 
 
 def validate_export(store, owner, args: ExportArgs):
-    row = store.one("SELECT * FROM videos WHERE id=? AND owner=? AND state='ready'",
-                    (args.video_id, owner))
+    row = store.one(
+        "SELECT * FROM videos WHERE id=? AND owner=? AND state='ready'", (args.video_id, owner)
+    )
     if not row:
         raise ToolError("Choose a ready video in this workspace.")
     if args.end <= args.start or args.end - args.start > 30 or args.end > row["duration"] + 0.01:

@@ -1,7 +1,7 @@
 """A small causal LM selects among five typed plans, never arbitrary Python or SQL."""
 
-from pathlib import Path
 import threading
+from pathlib import Path
 
 BASE_MODEL = "HuggingFaceTB/SmolLM2-135M-Instruct"
 BASE_REVISION = "12fd25f77366fa6b3b4b768ec3050bf629380bac"
@@ -35,9 +35,9 @@ def encode_options(tokenizer, prompts):
     mask = torch.zeros_like(ids)
     targets = torch.zeros((len(rows), width - 1), dtype=torch.float32)
     for i, (row, (start, end)) in enumerate(zip(rows, lengths, strict=True)):
-        ids[i, :len(row)] = torch.tensor(row)
-        mask[i, :len(row)] = 1
-        targets[i, start - 1:end - 1] = 1
+        ids[i, : len(row)] = torch.tensor(row)
+        mask[i, : len(row)] = 1
+        targets[i, start - 1 : end - 1] = 1
     return ids, mask, targets
 
 
@@ -68,20 +68,24 @@ class Planner:
         if self.model is not None:
             return
         import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer
         from peft import PeftModel
+        from transformers import AutoModelForCausalLM, AutoTokenizer
 
         torch.set_num_threads(2)
         self.tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, revision=BASE_REVISION)
         self.tokenizer.pad_token = self.tokenizer.eos_token
         model = AutoModelForCausalLM.from_pretrained(
-            BASE_MODEL, revision=BASE_REVISION, torch_dtype=torch.float32,
-            attn_implementation="eager", use_safetensors=True,
+            BASE_MODEL,
+            revision=BASE_REVISION,
+            torch_dtype=torch.float32,
+            attn_implementation="eager",
+            use_safetensors=True,
         )
         if not (self.adapter / "adapter_config.json").is_file():
             raise RuntimeError("The evaluated planner adapter is not installed.")
         self.model = PeftModel.from_pretrained(model, self.adapter).eval()
         import json
+
         manifest = self.adapter / "release.json"
         self.stage = json.loads(manifest.read_text())["stage"] if manifest.exists() else "adapter"
 
@@ -96,7 +100,8 @@ class Planner:
             probabilities = torch.softmax(scores, -1).tolist()
         best = max(range(len(PLANS)), key=probabilities.__getitem__)
         return {
-            "plan": PLANS[best], "stage": self.stage,
+            "plan": PLANS[best],
+            "stage": self.stage,
             "scores": dict(zip(PLANS, [round(p, 4) for p in probabilities], strict=True)),
             "model": BASE_MODEL,
         }

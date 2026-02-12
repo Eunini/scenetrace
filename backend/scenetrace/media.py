@@ -17,18 +17,32 @@ def run_media(args, timeout=90):
     try:
         result = subprocess.run(args, capture_output=True, timeout=timeout, check=False)
     except subprocess.TimeoutExpired:
-        raise MediaError("This video took too long to process. Try a shorter or smaller file.") from None
+        raise MediaError(
+            "This video took too long to process. Try a shorter or smaller file."
+        ) from None
     if result.returncode != 0:
         raise MediaError("The file could not be decoded. Use an MP4, MOV or WebM video.")
     return result.stdout
 
 
 def probe(path: Path):
-    output = run_media([
-        "ffprobe", "-v", "error", "-protocol_whitelist", "file,pipe",
-        "-format_whitelist", "mov,matroska,webm", "-show_format", "-show_streams",
-        "-of", "json", str(path),
-    ], timeout=15)
+    output = run_media(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-protocol_whitelist",
+            "file,pipe",
+            "-format_whitelist",
+            "mov,matroska,webm",
+            "-show_format",
+            "-show_streams",
+            "-of",
+            "json",
+            str(path),
+        ],
+        timeout=15,
+    )
     try:
         data = json.loads(output)
         stream = next(s for s in data["streams"] if s.get("codec_type") == "video")
@@ -46,15 +60,51 @@ def probe(path: Path):
 
 
 def transcode(source: Path, destination: Path):
-    run_media([
-        "ffmpeg", "-nostdin", "-v", "error", "-threads", "1",
-        "-protocol_whitelist", "file,pipe", "-i", str(source),
-        "-map", "0:v:0", "-map", "0:a:0?", "-map_metadata", "-1", "-sn", "-dn",
-        "-vf", "scale=960:540:force_original_aspect_ratio=decrease:force_divisible_by=2",
-        "-r", "24", "-c:v", "libx264", "-preset", "veryfast", "-crf", "25",
-        "-threads", "1", "-c:a", "aac", "-b:a", "64k", "-t", str(MAX_DURATION),
-        "-movflags", "+faststart", "-y", str(destination),
-    ], timeout=150)
+    run_media(
+        [
+            "ffmpeg",
+            "-nostdin",
+            "-v",
+            "error",
+            "-threads",
+            "1",
+            "-protocol_whitelist",
+            "file,pipe",
+            "-i",
+            str(source),
+            "-map",
+            "0:v:0",
+            "-map",
+            "0:a:0?",
+            "-map_metadata",
+            "-1",
+            "-sn",
+            "-dn",
+            "-vf",
+            "scale=960:540:force_original_aspect_ratio=decrease:force_divisible_by=2",
+            "-r",
+            "24",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "veryfast",
+            "-crf",
+            "25",
+            "-threads",
+            "1",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "64k",
+            "-t",
+            str(MAX_DURATION),
+            "-movflags",
+            "+faststart",
+            "-y",
+            str(destination),
+        ],
+        timeout=150,
+    )
 
 
 def extract_frames(video: Path, directory: Path, duration: float):
@@ -64,25 +114,76 @@ def extract_frames(video: Path, directory: Path, duration: float):
     interval = duration / count
     times = [min(duration - 0.05, interval * (i + 0.5)) for i in range(count)]
     # A single ffmpeg pass is substantially faster than seeking once per frame.
-    run_media([
-        "ffmpeg", "-nostdin", "-v", "error", "-threads", "1",
-        "-protocol_whitelist", "file,pipe", "-i", str(video),
-        "-vf", f"fps=1/{interval:.8f}:start_time={interval / 2:.8f},scale=384:-2",
-        "-frames:v", str(count), "-threads", "1", "-q:v", "3",
-        "-y", str(directory / "%03d.jpg"),
-    ], timeout=60)
+    run_media(
+        [
+            "ffmpeg",
+            "-nostdin",
+            "-v",
+            "error",
+            "-threads",
+            "1",
+            "-protocol_whitelist",
+            "file,pipe",
+            "-i",
+            str(video),
+            "-vf",
+            f"fps=1/{interval:.8f}:start_time={interval / 2:.8f},scale=384:-2",
+            "-frames:v",
+            str(count),
+            "-threads",
+            "1",
+            "-q:v",
+            "3",
+            "-y",
+            str(directory / "%03d.jpg"),
+        ],
+        timeout=60,
+    )
     files = sorted(directory.glob("*.jpg"))
     if not files:
         raise MediaError("No visual frames could be extracted from this video.")
-    return list(zip(files, times[:len(files)], strict=True))
+    return list(zip(files, times[: len(files)], strict=True))
 
 
 def export_clip(video: Path, destination: Path, start: float, end: float):
-    run_media([
-        "ffmpeg", "-nostdin", "-v", "error", "-threads", "1",
-        "-protocol_whitelist", "file,pipe", "-ss", f"{start:.3f}", "-i", str(video),
-        "-t", f"{end - start:.3f}", "-map", "0:v:0", "-map", "0:a:0?",
-        "-map_metadata", "-1", "-sn", "-dn", "-c:v", "libx264", "-crf", "23",
-        "-preset", "veryfast", "-threads", "1", "-c:a", "aac",
-        "-movflags", "+faststart", "-y", str(destination),
-    ], timeout=60)
+    run_media(
+        [
+            "ffmpeg",
+            "-nostdin",
+            "-v",
+            "error",
+            "-threads",
+            "1",
+            "-protocol_whitelist",
+            "file,pipe",
+            "-ss",
+            f"{start:.3f}",
+            "-i",
+            str(video),
+            "-t",
+            f"{end - start:.3f}",
+            "-map",
+            "0:v:0",
+            "-map",
+            "0:a:0?",
+            "-map_metadata",
+            "-1",
+            "-sn",
+            "-dn",
+            "-c:v",
+            "libx264",
+            "-crf",
+            "23",
+            "-preset",
+            "veryfast",
+            "-threads",
+            "1",
+            "-c:a",
+            "aac",
+            "-movflags",
+            "+faststart",
+            "-y",
+            str(destination),
+        ],
+        timeout=60,
+    )

@@ -12,10 +12,15 @@ from pathlib import Path
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 import torch
 from peft import LoraConfig, TaskType, get_peft_model
-from transformers import AutoModelForCausalLM, AutoTokenizer
 from scenetrace.policy import (
-    BASE_MODEL, BASE_REVISION, PLANS, encode_options, option_scores, prompt_for,
+    BASE_MODEL,
+    BASE_REVISION,
+    PLANS,
+    encode_options,
+    option_scores,
+    prompt_for,
 )
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "artifacts"
@@ -25,11 +30,15 @@ random.seed(37)
 
 
 def load_data(split):
-    return [json.loads(line) for line in (ROOT / f"training/{split}.jsonl").read_text().splitlines()]
+    return [
+        json.loads(line) for line in (ROOT / f"training/{split}.jsonl").read_text().splitlines()
+    ]
 
 
 def encoded(tokenizer, rows):
-    return encode_options(tokenizer, [prompt_for(r["query"], r["selected"], r["previous"]) for r in rows])
+    return encode_options(
+        tokenizer, [prompt_for(r["query"], r["selected"], r["previous"]) for r in rows]
+    )
 
 
 def evaluate(model, tokenizer, rows):
@@ -41,23 +50,38 @@ def evaluate(model, tokenizer, rows):
             scores = option_scores(model, encoded(tokenizer, [row]))[0]
             predicted = PLANS[int(scores.argmax())]
             latencies.append(time.perf_counter() - start)
-            predictions.append({"id": row["id"], "expected": row["plan"], "predicted": predicted,
-                                "correct": predicted == row["plan"]})
+            predictions.append(
+                {
+                    "id": row["id"],
+                    "expected": row["plan"],
+                    "predicted": predicted,
+                    "correct": predicted == row["plan"],
+                }
+            )
     correct = sum(r["correct"] for r in predictions)
     seconds = sum(latencies)
-    return {"n": len(rows), "correct": correct, "accuracy": correct / len(rows),
-            "mean_latency_seconds": seconds / len(rows),
-            "estimated_dollars_per_correct": seconds / 3600 * 0.04 / max(correct, 1),
-            "cost_assumption": "CPU compute at $0.04/hour; excludes storage and idle time, not a bill",
-            "per_plan": {p: sum(r["correct"] for r in predictions if r["expected"] == p) /
-                         sum(r["expected"] == p for r in predictions) for p in PLANS},
-            "predictions": predictions}
+    return {
+        "n": len(rows),
+        "correct": correct,
+        "accuracy": correct / len(rows),
+        "mean_latency_seconds": seconds / len(rows),
+        "estimated_dollars_per_correct": seconds / 3600 * 0.04 / max(correct, 1),
+        "cost_assumption": "CPU compute at $0.04/hour; excludes storage and idle time, not a bill",
+        "per_plan": {
+            p: sum(r["correct"] for r in predictions if r["expected"] == p)
+            / sum(r["expected"] == p for r in predictions)
+            for p in PLANS
+        },
+        "predictions": predictions,
+    }
 
 
 def completion_batch(tokenizer, rows):
     records = []
     for row in rows:
-        prompt = tokenizer.encode(prompt_for(row["query"], row["selected"]), add_special_tokens=False)
+        prompt = tokenizer.encode(
+            prompt_for(row["query"], row["selected"]), add_special_tokens=False
+        )
         answer = tokenizer.encode(" " + row["plan"], add_special_tokens=False)
         records.append((prompt + answer, [-100] * len(prompt) + answer))
     width = max(len(r[0]) for r in records)
@@ -65,9 +89,9 @@ def completion_batch(tokenizer, rows):
     labels = torch.full_like(ids, -100)
     attention = torch.zeros_like(ids)
     for i, (tokens, targets) in enumerate(records):
-        ids[i, :len(tokens)] = torch.tensor(tokens)
-        labels[i, :len(tokens)] = torch.tensor(targets)
-        attention[i, :len(tokens)] = 1
+        ids[i, : len(tokens)] = torch.tensor(tokens)
+        labels[i, : len(tokens)] = torch.tensor(targets)
+        attention[i, : len(tokens)] = 1
     return {"input_ids": ids, "labels": labels, "attention_mask": attention}
 
 
@@ -88,21 +112,37 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, revision=BASE_REVISION)
     tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(
-        BASE_MODEL, revision=BASE_REVISION, torch_dtype=torch.float32,
-        attn_implementation="eager", use_safetensors=True,
+        BASE_MODEL,
+        revision=BASE_REVISION,
+        torch_dtype=torch.float32,
+        attn_implementation="eager",
+        use_safetensors=True,
     )
-    report = {"executed_at": datetime.now(timezone.utc).isoformat(), "seed": 37,
-              "base_model": BASE_MODEL, "base_revision": BASE_REVISION,
-              "task": "Five-way constrained video-tool routing, not free-form video reasoning",
-              "split_sizes": dict(zip(["train", "validation", "test"], map(len, [train, validation, test]))),
-              "split_policy": "Disjoint question template groups; all questions are synthetic",
-              "training": {}, "metrics": {}}
+    report = {
+        "executed_at": datetime.now(timezone.utc).isoformat(),
+        "seed": 37,
+        "base_model": BASE_MODEL,
+        "base_revision": BASE_REVISION,
+        "task": "Five-way constrained video-tool routing, not free-form video reasoning",
+        "split_sizes": dict(
+            zip(["train", "validation", "test"], map(len, [train, validation, test]))
+        ),
+        "split_policy": "Disjoint question template groups; all questions are synthetic",
+        "training": {},
+        "metrics": {},
+    }
     print("Evaluating base on validation", flush=True)
     report["metrics"]["base_validation"] = evaluate(model, tokenizer, validation)
-    model = get_peft_model(model, LoraConfig(
-        task_type=TaskType.CAUSAL_LM, r=8, lora_alpha=16, lora_dropout=0.0,
-        target_modules=["q_proj", "v_proj"],
-    ))
+    model = get_peft_model(
+        model,
+        LoraConfig(
+            task_type=TaskType.CAUSAL_LM,
+            r=8,
+            lora_alpha=16,
+            lora_dropout=0.0,
+            target_modules=["q_proj", "v_proj"],
+        ),
+    )
     report["trainable_parameters"] = sum(p.numel() for p in model.parameters() if p.requires_grad)
     optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=8e-4)
     history = []
@@ -111,11 +151,13 @@ def main():
         random.shuffle(train)
         losses = []
         for start in range(0, len(train), 8):
-            batch = completion_batch(tokenizer, train[start:start + 8])
+            batch = completion_batch(tokenizer, train[start : start + 8])
             # Project only completion positions into the 49k-token vocabulary. This is
             # exactly completion-masked causal cross-entropy with far less CPU memory.
             base = model.get_base_model()
-            hidden = base.model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"]).last_hidden_state[:, :-1]
+            hidden = base.model(
+                input_ids=batch["input_ids"], attention_mask=batch["attention_mask"]
+            ).last_hidden_state[:, :-1]
             targets = batch["labels"][:, 1:]
             selected = targets != -100
             logits = base.get_output_embeddings()(hidden[selected])
@@ -140,7 +182,9 @@ def main():
     reference = []
     with torch.no_grad():
         for row in rl_rows:
-            reference.append(torch.log_softmax(option_scores(model, encoded(tokenizer, [row]))[0], -1))
+            reference.append(
+                torch.log_softmax(option_scores(model, encoded(tokenizer, [row]))[0], -1)
+            )
     optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=8e-5)
     for step in range(100):
         i = step % len(rl_rows)
@@ -155,7 +199,9 @@ def main():
         for _ in range(2):
             current = torch.log_softmax(option_scores(model, inputs)[0], -1)
             ratios = (current[actions] - old[actions]).exp()
-            objective = torch.minimum(ratios * advantages, ratios.clamp(0.8, 1.2) * advantages).mean()
+            objective = torch.minimum(
+                ratios * advantages, ratios.clamp(0.8, 1.2) * advantages
+            ).mean()
             kl = (current.exp() * (current - ref)).sum()
             loss = -objective + 0.02 * kl
             loss.backward()
@@ -163,18 +209,36 @@ def main():
             optimizer.step()
             optimizer.zero_grad(set_to_none=True)
         if step % 10 == 0:
-            point = {"stage": "grpo", "step": step, "reward": float(rewards.mean()), "kl": float(kl.detach())}
+            point = {
+                "stage": "grpo",
+                "step": step,
+                "reward": float(rewards.mean()),
+                "kl": float(kl.detach()),
+            }
             history.append(point)
             print(json.dumps(point), flush=True)
     model.save_pretrained(OUT / "checkpoints/grpo", safe_serialization=True)
-    report["training"]["grpo"] = {"steps": 100, "group_size": 6, "updates_per_rollout": 2,
-                                  "clip_epsilon": 0.2, "beta": 0.02, "learning_rate": 8e-5,
-                                  "action_space": list(PLANS), "reward": "+1 correct plan, -1 wrong plan; -0.01 per tool call"}
+    report["training"]["grpo"] = {
+        "steps": 100,
+        "group_size": 6,
+        "updates_per_rollout": 2,
+        "clip_epsilon": 0.2,
+        "beta": 0.02,
+        "learning_rate": 8e-5,
+        "action_space": list(PLANS),
+        "reward": "+1 correct plan, -1 wrong plan; -0.01 per tool call",
+    }
     report["metrics"]["grpo_validation"] = evaluate(model, tokenizer, validation)
-    selected = "grpo" if report["metrics"]["grpo_validation"]["accuracy"] >= report["metrics"]["sft_validation"]["accuracy"] else "sft"
+    selected = (
+        "grpo"
+        if report["metrics"]["grpo_validation"]["accuracy"]
+        >= report["metrics"]["sft_validation"]["accuracy"]
+        else "sft"
+    )
     report["selected_stage"] = selected
     # Freeze model selection before evaluating the held-out test. No test-based tuning.
     from peft import PeftModel
+
     base = model.unload()
     report["metrics"]["base_test"] = evaluate(base, tokenizer, test)
     for stage in ["sft", "grpo"]:
@@ -182,8 +246,9 @@ def main():
         report["metrics"][f"{stage}_test"] = evaluate(candidate, tokenizer, test)
         base = candidate.unload()
     report["release_gate"] = {
-        "passed": report["metrics"][f"{selected}_validation"]["accuracy"] >= 0.75 and
-                  report["metrics"][f"{selected}_test"]["accuracy"] >= report["metrics"]["base_test"]["accuracy"],
+        "passed": report["metrics"][f"{selected}_validation"]["accuracy"] >= 0.75
+        and report["metrics"][f"{selected}_test"]["accuracy"]
+        >= report["metrics"]["base_test"]["accuracy"],
         "rule": "Validation accuracy >= 0.75; frozen candidate must not underperform base on held-out test",
     }
     report["elapsed_seconds"] = time.time() - started
@@ -193,11 +258,18 @@ def main():
         destination = OUT / "released"
         shutil.copytree(OUT / f"checkpoints/{selected}", destination, dirs_exist_ok=True)
         tokenizer.save_pretrained(destination)
-        release = {"stage": selected, "base_model": BASE_MODEL, "base_revision": BASE_REVISION,
-                   "actual_training_time": report["executed_at"],
-                   "evaluation_sha256": hashlib.sha256((OUT / "evaluation.json").read_bytes()).hexdigest()}
+        release = {
+            "stage": selected,
+            "base_model": BASE_MODEL,
+            "base_revision": BASE_REVISION,
+            "actual_training_time": report["executed_at"],
+            "evaluation_sha256": hashlib.sha256((OUT / "evaluation.json").read_bytes()).hexdigest(),
+        }
         (destination / "release.json").write_text(json.dumps(release, indent=2) + "\n")
-    print(json.dumps({k: report[k] for k in ["selected_stage", "release_gate", "elapsed_seconds"]}), flush=True)
+    print(
+        json.dumps({k: report[k] for k in ["selected_stage", "release_gate", "elapsed_seconds"]}),
+        flush=True,
+    )
 
 
 if __name__ == "__main__":

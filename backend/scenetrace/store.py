@@ -46,10 +46,14 @@ class Store:
         with self.connect() as db:
             db.executescript(SCHEMA)
             # Interrupted operations cannot silently look complete after a restart.
-            db.execute("UPDATE jobs SET state='failed', error='Host restarted; please retry.' "
-                       "WHERE state IN ('queued','running')")
-            db.execute("UPDATE videos SET state='failed', error='Indexing interrupted; upload again.' "
-                       "WHERE state='indexing'")
+            db.execute(
+                "UPDATE jobs SET state='failed', error='Host restarted; please retry.' "
+                "WHERE state IN ('queued','running')"
+            )
+            db.execute(
+                "UPDATE videos SET state='failed', error='Indexing interrupted; upload again.' "
+                "WHERE state='indexing'"
+            )
 
     @contextmanager
     def connect(self):
@@ -85,10 +89,21 @@ class Store:
             )
         # No model-generated SQL is executed. LIKE metacharacters have literal meaning.
         escaped = contains.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
-        return self.all("SELECT * FROM videos WHERE owner=? AND filename LIKE ? ESCAPE '\\' "
-                        "ORDER BY created DESC LIMIT 20", (owner, f"%{escaped}%"))
+        return self.all(
+            "SELECT * FROM videos WHERE owner=? AND filename LIKE ? ESCAPE '\\' "
+            "ORDER BY created DESC LIMIT 20",
+            (owner, f"%{escaped}%"),
+        )
 
     def update_job(self, job_id, state, progress=0, result=None, error=None):
-        self.execute("UPDATE jobs SET state=?,progress=?,result=?,error=?,updated=? WHERE id=?",
-                     (state, progress, json.dumps(result) if result is not None else None,
-                      error, time.time(), job_id))
+        self.execute(
+            "UPDATE jobs SET state=?,progress=?,result=?,error=?,updated=? WHERE id=?",
+            (
+                state,
+                progress,
+                json.dumps(result) if result is not None else None,
+                error,
+                time.time(),
+                job_id,
+            ),
+        )

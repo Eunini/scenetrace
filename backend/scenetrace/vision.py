@@ -41,7 +41,7 @@ class Vision:
             self.load()
             outputs = []
             for start in range(0, len(paths), 4):
-                images = [Image.open(path).convert("RGB") for path in paths[start:start + 4]]
+                images = [Image.open(path).convert("RGB") for path in paths[start : start + 4]]
                 inputs = self.processor(images=images, return_tensors="pt")
                 features = self.model.get_image_features(**inputs)
                 if hasattr(features, "pooler_output"):
@@ -56,7 +56,9 @@ class Vision:
 
         with self.lock, torch.inference_mode():
             self.load()
-            inputs = self.processor(text=[query], return_tensors="pt", padding=True, truncation=True)
+            inputs = self.processor(
+                text=[query], return_tensors="pt", padding=True, truncation=True
+            )
             features = self.model.get_text_features(**inputs)
             if hasattr(features, "pooler_output"):
                 features = features.pooler_output
@@ -69,21 +71,34 @@ class Vision:
         with self.lock, torch.inference_mode(), Image.open(image_path) as image:
             image = image.convert("RGB")
             if self.detector is None:
-                self.detector_processor = DetrImageProcessor.from_pretrained(DETR_MODEL, revision=DETR_REVISION)
+                self.detector_processor = DetrImageProcessor.from_pretrained(
+                    DETR_MODEL, revision=DETR_REVISION
+                )
                 self.detector = DetrForObjectDetection.from_pretrained(
-                    DETR_MODEL, revision=DETR_REVISION, use_safetensors=False, weights_only=True,
-                    backbone_kwargs={"use_pretrained_backbone": False},
+                    DETR_MODEL,
+                    revision=DETR_REVISION,
+                    use_safetensors=False,
+                    weights_only=True,
                 ).eval()
             inputs = self.detector_processor(images=image, return_tensors="pt")
             outputs = self.detector(**inputs)
             result = self.detector_processor.post_process_object_detection(
                 outputs, target_sizes=torch.tensor([[image.height, image.width]]), threshold=0.7
             )[0]
-            return {"width": image.width, "height": image.height, "objects": [
-                {"label": self.detector.config.id2label[int(label)], "score": round(float(score), 4),
-                 "box": [round(float(x), 2) for x in box]}
-                for score, label, box in zip(result["scores"], result["labels"], result["boxes"], strict=True)
-            ]}
+            return {
+                "width": image.width,
+                "height": image.height,
+                "objects": [
+                    {
+                        "label": self.detector.config.id2label[int(label)],
+                        "score": round(float(score), 4),
+                        "box": [round(float(x), 2) for x in box],
+                    }
+                    for score, label, box in zip(
+                        result["scores"], result["labels"], result["boxes"], strict=True
+                    )
+                ],
+            }
 
 
 def sharpness(path: Path):
@@ -106,10 +121,21 @@ def object_mask(image_path: Path, destination: Path, box):
     if width <= 1 or height <= 1 or x >= w - 2 or y >= h - 2:
         raise ValueError("Choose a bounding box within the frame.")
     mask = np.zeros((h, w), np.uint8)
-    cv2.grabCut(image, mask, (x, y, width, height), np.zeros((1, 65)), np.zeros((1, 65)), 3, cv2.GC_INIT_WITH_RECT)
+    cv2.grabCut(
+        image,
+        mask,
+        (x, y, width, height),
+        np.zeros((1, 65)),
+        np.zeros((1, 65)),
+        3,
+        cv2.GC_INIT_WITH_RECT,
+    )
     alpha = np.where((mask == 1) | (mask == 3), 255, 0).astype(np.uint8)
     rgba = cv2.cvtColor(image, cv2.COLOR_BGR2BGRA)
     rgba[:, :, 3] = alpha
     cv2.imwrite(str(destination), rgba)
-    return {"foreground_pixels": int(np.count_nonzero(alpha)), "total_pixels": w * h,
-            "method": "GrabCut, initialized from a bounding box"}
+    return {
+        "foreground_pixels": int(np.count_nonzero(alpha)),
+        "total_pixels": w * h,
+        "method": "GrabCut, initialized from a bounding box",
+    }

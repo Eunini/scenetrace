@@ -15,5 +15,6 @@ artifacts/clip/
 artifacts/detr/
 artifacts/checkpoints/
 *.log
+*.tsbuildinfo
 .vercel/
 evidence/private/

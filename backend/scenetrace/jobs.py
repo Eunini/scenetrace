@@ -21,7 +21,7 @@ class Jobs:
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="video-worker")
         self.slots = threading.BoundedSemaphore(6)
         self.disk_lock = threading.RLock()
-        self.active_videos = set()
+        self.active_videos = {}
         self.state_lock = threading.RLock()
 
     def submit(self, owner, video_id, kind, function, *args):
@@ -30,7 +30,7 @@ class Jobs:
         job_id = uuid.uuid4().hex
         now = time.time()
         with self.state_lock:
-            self.active_videos.add(video_id)
+            self.active_videos[video_id] = self.active_videos.get(video_id, 0) + 1
         self.store.execute(
             "INSERT INTO jobs (id,owner,video_id,kind,state,created,updated) VALUES (?,?,?,?,?,?,?)",
             (job_id, owner, video_id, kind, "queued", now, now),
@@ -63,7 +63,11 @@ class Jobs:
                     )
             finally:
                 with self.state_lock:
-                    self.active_videos.discard(video_id)
+                    remaining = self.active_videos[video_id] - 1
+                    if remaining:
+                        self.active_videos[video_id] = remaining
+                    else:
+                        del self.active_videos[video_id]
                 self.slots.release()
 
         self.executor.submit(task)

@@ -109,10 +109,11 @@ def transcode(source: Path, destination: Path):
 
 def extract_frames(video: Path, directory: Path, duration: float):
     directory.mkdir(exist_ok=True)
-    # Sample at bin centres, avoiding an exact end-of-file seek.
+    # Select the first decoded frame at or after each bin boundary. Selecting against
+    # absolute time avoids drift and also produces a frame for very short videos.
     count = min(FRAME_COUNT, max(1, int(duration / 1.5)))
     interval = duration / count
-    times = [min(duration - 0.05, interval * (i + 0.5)) for i in range(count)]
+    times = [interval * i for i in range(count)]
     # A single ffmpeg pass is substantially faster than seeking once per frame.
     run_media(
         [
@@ -127,7 +128,9 @@ def extract_frames(video: Path, directory: Path, duration: float):
             "-i",
             str(video),
             "-vf",
-            f"fps=1/{interval:.8f}:start_time={interval / 2:.8f},scale=384:-2",
+            f"select=gte(t\\,selected_n*{interval:.8f}),scale=384:-2",
+            "-vsync",
+            "vfr",
             "-frames:v",
             str(count),
             "-threads",

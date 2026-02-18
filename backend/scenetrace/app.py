@@ -16,6 +16,7 @@ from pathlib import Path
 from urllib.parse import unquote
 
 from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import Field
@@ -86,6 +87,20 @@ def create_app(data_dir=None, vision=None, planner=None):
     app = FastAPI(title="SceneTrace", version="1.0.0", lifespan=lifespan)
     app.state.store, app.state.jobs = store, jobs
 
+    @app.exception_handler(RequestValidationError)
+    async def validation_error(request, exc):
+        # Do not reflect arbitrary uploaded input or non-finite values into JSON errors.
+        return JSONResponse(
+            {
+                "detail": "Invalid request fields.",
+                "errors": [
+                    {"field": list(error["loc"]), "type": error["type"], "message": error["msg"]}
+                    for error in exc.errors()
+                ],
+            },
+            status_code=422,
+        )
+
     def sign(value):
         return hmac.new(secret, value.encode(), hashlib.sha256).hexdigest()
 
@@ -146,6 +161,10 @@ def create_app(data_dir=None, vision=None, planner=None):
                     {"detail": "Requests must come from this workspace."}, status_code=403
                 )
         if request.method not in ("GET", "HEAD"):
+            if "content-length" not in request.headers:
+                return JSONResponse(
+                    {"detail": "Send a bounded request with a content length."}, status_code=411
+                )
             try:
                 length = int(request.headers.get("content-length", "0"))
             except ValueError:

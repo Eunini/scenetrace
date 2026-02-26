@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "npm ci --prefix web --ignore-scripts",
+  "buildCommand": "npm run build --prefix web",
+  "outputDirectory": "web/dist",
+  "rewrites": [
+    {"source": "/api/:path*", "destination": "https://ineeoluwa-scenetrace.hf.space/api/:path*"}
+  ]
+}

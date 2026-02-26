@@ -1,0 +1,16 @@
+.git
+.venv
+.runtime
+node_modules
+web/node_modules
+web/dist
+web/test-results
+evidence
+.cache
+__pycache__
+artifacts/checkpoints
+artifacts/base
+artifacts/clip
+artifacts/detr
+.env
+*.log

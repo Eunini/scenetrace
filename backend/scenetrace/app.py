@@ -161,7 +161,10 @@ def create_app(data_dir=None, vision=None, planner=None):
                     {"detail": "Requests must come from this workspace."}, status_code=403
                 )
         if request.method not in ("GET", "HEAD"):
-            if "content-length" not in request.headers:
+            if (
+                request.method in ("POST", "PUT", "PATCH")
+                and "content-length" not in request.headers
+            ):
                 return JSONResponse(
                     {"detail": "Send a bounded request with a content length."}, status_code=411
                 )
@@ -359,15 +362,29 @@ def create_app(data_dir=None, vision=None, planner=None):
         frame = frame_for(owner, args.frame_id)
         return vision.detect(store.root / frame["video_id"] / "frames" / f"{args.frame_id}.jpg")
 
+    @app.post("/api/search")
+    def search(request: Request, args: SearchArgs):
+        owner = current_owner(request)
+        rate(owner, "agent", 15)
+        return {
+            "matches": search_frames(store, vision, owner, args),
+            "method": "CLIP cosine similarity",
+        }
+
     @app.post("/api/frames/mask")
     def mask(request: Request, args: MaskArgs):
         owner = current_owner(request)
         rate(owner, "mask", 8)
         frame = frame_for(owner, args.frame_id)
         directory = store.root / frame["video_id"] / "frames"
-        result = object_mask(
-            directory / f"{args.frame_id}.jpg", directory / f"{args.frame_id}.png", args.box
-        )
+        try:
+            result = object_mask(
+                directory / f"{args.frame_id}.jpg", directory / f"{args.frame_id}.png", args.box
+            )
+        except Exception:
+            raise ToolError(
+                "A foreground mask could not be created for this box. Try a tighter selection."
+            ) from None
         return {**result, "image_url": f"/api/frames/{args.frame_id}/mask"}
 
     @app.get("/api/frames/{frame_id}/mask")

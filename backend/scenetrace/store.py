@@ -45,6 +45,9 @@ class Store:
         self.db = root / "workspace.sqlite3"
         with self.connect() as db:
             db.executescript(SCHEMA)
+
+    def recover(self):
+        with self.connect() as db:
             # Interrupted operations cannot silently look complete after a restart.
             db.execute(
                 "UPDATE jobs SET state='failed', error='Host restarted; please retry.' "

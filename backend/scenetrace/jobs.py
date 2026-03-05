@@ -24,6 +24,16 @@ class Jobs:
         self.active_videos = {}
         self.state_lock = threading.RLock()
 
+    def storage_available(self):
+        used = 0
+        for path in self.store.root.rglob("*"):
+            try:
+                if path.is_file():
+                    used += path.stat().st_size
+            except FileNotFoundError:
+                continue
+        return used < 1_800_000_000 and shutil.disk_usage(self.store.root).free >= 500_000_000
+
     def submit(self, owner, video_id, kind, function, *args):
         if not self.slots.acquire(blocking=False):
             raise BusyError("The video queue is full. Please try again shortly.")
@@ -80,7 +90,7 @@ class Jobs:
         self.store.update_job(job_id, "running", 0.15)
         proxy = directory / "video.mp4"
         transcode(source, proxy)
-        source.unlink(missing_ok=True)
+        source.rename(directory / "source")
         frames = extract_frames(proxy, directory / "frames", metadata["duration"])
         self.store.update_job(job_id, "running", 0.4)
         embeddings = self.vision.images([p for p, _ in frames])
@@ -107,7 +117,7 @@ class Jobs:
                     metadata["duration"],
                     metadata["width"],
                     metadata["height"],
-                    proxy.stat().st_size,
+                    proxy.stat().st_size + (directory / "source").stat().st_size,
                     video_id,
                     owner,
                 ),
@@ -123,7 +133,7 @@ class Jobs:
             raise ValueError("Export needs your approval before it can run.")
         directory = self.store.root / video_id
         export_clip(
-            directory / "video.mp4",
+            directory / "source",
             directory / f"export-{approval_id}.mp4",
             approval["start"],
             approval["end"],

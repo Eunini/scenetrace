@@ -1,0 +1,22 @@
+{
+  "checkpoint_sha256": "993e6e6ad38c5dea860b924c7efb7fac9e55d4b968e2b6767124526f15f89ec0",
+  "completed_epoch_losses": [
+    {
+      "stage": "sft",
+      "epoch": 1,
+      "loss": 1.3493726941291242
+    },
+    {
+      "stage": "sft",
+      "epoch": 2,
+      "loss": 0.020483943009215484
+    },
+    {
+      "stage": "sft",
+      "epoch": 3,
+      "loss": 0.0002131523306161398
+    }
+  ],
+  "checkpoint_mtime_unix": 1793149771.3976686,
+  "note": "Completed three-epoch SFT checkpoint reused while adding explicit RL exploration, before any held-out test evaluation."
+}

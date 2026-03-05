@@ -190,3 +190,39 @@ def test_agent_budget_export_policy_and_no_selected_frame_handling(workspace, ti
     assert response["budget"]["used"] <= response["budget"]["maximum"] == 4
     assert [r["tool"] for r in response["trace"]] == ["retrieve_frame", "request_export"]
     assert all(r["status"] == "ok" for r in response["trace"])
+
+
+def test_chunked_json_is_bounded_even_without_content_length(workspace):
+    alice = workspace[1]
+    response = alice.post(
+        "/api/agent",
+        content=iter([b'{"query":"', b"x" * 20000, b'"}']),
+        headers={"content-type": "application/json"},
+    )
+    assert response.status_code == 413
+
+
+def test_query_library_counts_and_literal_like_patterns(workspace, tiny_video):
+    app, alice, bob = workspace
+    result, frames = indexed(workspace, tiny_video)
+    owner = app.state.store.one("SELECT owner FROM videos WHERE id=?", (result["video_id"],))[
+        "owner"
+    ]
+    stats = app.state.store.library(owner, "count")
+    assert stats["videos"] == 1 and stats["duration"] == 2
+    assert app.state.store.library(owner, "list", "%") == []
+    assert app.state.store.library(owner, "list", "' OR 1=1 --") == []
+    assert app.state.store.library(owner, "list", "clip")
+
+
+def test_mask_and_detector_have_typed_owner_scoped_results(workspace, tiny_video):
+    app, alice, bob = workspace
+    result, frames = indexed(workspace, tiny_video)
+    frame = frames[0]
+    assert alice.post("/api/frames/detect", json={"frame_id": frame["id"]}).json()["objects"] == []
+    response = alice.post(
+        "/api/frames/mask", json={"frame_id": frame["id"], "box": [10, 10, 90, 60]}
+    )
+    assert response.status_code == 200, response.text
+    assert alice.get(response.json()["image_url"]).content.startswith(b"\x89PNG")
+    assert bob.get(response.json()["image_url"]).status_code == 404

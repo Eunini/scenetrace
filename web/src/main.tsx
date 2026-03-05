@@ -423,11 +423,14 @@ function App() {
         Skip to workspace
       </a>
       <aside className="sidebar">
-        <a href="/" className="brand" aria-label="SceneTrace home">
+        <a href="/" className="brand">
           <span className="brand-mark">
             <FilmStrip size={25} weight="duotone" />
           </span>
-          SceneTrace<span className="beta">01</span>
+          SceneTrace
+          <span className="beta" aria-hidden="true">
+            01
+          </span>
         </a>
         <div className="project-label">
           YOUR SCREENING ROOM<span>SESSION</span>
@@ -558,15 +561,15 @@ function App() {
             </button>
           </div>
         </header>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="video/mp4,video/quicktime,video/webm,.mkv"
-          className="sr-only"
-          aria-label="Choose video file"
-          onChange={(e) => upload(e.target.files?.[0])}
-        />
         <main id="main">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="video/mp4,video/quicktime,video/webm,.mkv"
+            className="sr-only"
+            aria-label="Choose video file"
+            onChange={(e) => upload(e.target.files?.[0])}
+          />
           {error && (
             <div className="alert" role="alert">
               <span>{error}</span>

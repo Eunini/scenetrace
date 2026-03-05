@@ -5,6 +5,7 @@ import json
 import os
 import random
 import shutil
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -146,9 +147,22 @@ def main():
     report["trainable_parameters"] = sum(p.numel() for p in model.parameters() if p.requires_grad)
     optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=8e-4)
     history = []
+    resume_sft = "--resume-sft" in sys.argv
+    if resume_sft:
+        from peft import set_peft_model_state_dict
+        from safetensors.torch import load_file
+
+        set_peft_model_state_dict(
+            model, load_file(OUT / "checkpoints/sft/adapter_model.safetensors")
+        )
+        provenance = json.loads((OUT / "sft-provenance.json").read_text())
+        history.extend(provenance["completed_epoch_losses"])
+        report["resumed_sft"] = provenance
     for epoch in range(3):
         model.train()
         random.shuffle(train)
+        if resume_sft:
+            continue
         losses = []
         for start in range(0, len(train), 8):
             batch = completion_batch(tokenizer, train[start : start + 8])
@@ -170,7 +184,8 @@ def main():
         point = {"stage": "sft", "epoch": epoch + 1, "loss": sum(losses) / len(losses)}
         history.append(point)
         print(json.dumps(point), flush=True)
-    model.save_pretrained(OUT / "checkpoints/sft", safe_serialization=True)
+    if not resume_sft:
+        model.save_pretrained(OUT / "checkpoints/sft", safe_serialization=True)
     report["training"]["sft"] = {"epochs": 3, "batch_size": 8, "learning_rate": 8e-4}
     report["metrics"]["sft_validation"] = evaluate(model, tokenizer, validation)
     print("SFT validation", report["metrics"]["sft_validation"]["accuracy"], flush=True)
@@ -178,26 +193,32 @@ def main():
     # Finite-action GRPO: sample six tool plans from the current LM policy, normalize
     # rewards within the group, then apply two clipped updates with exact categorical KL.
     model.eval()
+    temperature = 3.0
+    initial_lora = {n: p.detach().clone() for n, p in model.named_parameters() if p.requires_grad}
     rl_rows = random.sample(train, 80)
     reference = []
     with torch.no_grad():
         for row in rl_rows:
             reference.append(
-                torch.log_softmax(option_scores(model, encoded(tokenizer, [row]))[0], -1)
+                torch.log_softmax(
+                    option_scores(model, encoded(tokenizer, [row]))[0] / temperature, -1
+                )
             )
     optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=8e-5)
-    for step in range(100):
+    informative_groups = 0
+    for step in range(60):
         i = step % len(rl_rows)
         row, ref = rl_rows[i], reference[i]
         inputs = encoded(tokenizer, [row])
         model.eval()
         with torch.no_grad():
-            old = torch.log_softmax(option_scores(model, inputs)[0], -1)
+            old = torch.log_softmax(option_scores(model, inputs)[0] / temperature, -1)
             actions = torch.multinomial(old.exp(), 6, replacement=True)
             rewards = torch.tensor([reward(row, int(a)) for a in actions])
             advantages = (rewards - rewards.mean()) / rewards.std(unbiased=False).clamp(min=1e-4)
+            informative_groups += int(float(rewards.std(unbiased=False)) > 1e-4)
         for _ in range(2):
-            current = torch.log_softmax(option_scores(model, inputs)[0], -1)
+            current = torch.log_softmax(option_scores(model, inputs)[0] / temperature, -1)
             ratios = (current[actions] - old[actions]).exp()
             objective = torch.minimum(
                 ratios * advantages, ratios.clamp(0.8, 1.2) * advantages
@@ -219,7 +240,15 @@ def main():
             print(json.dumps(point), flush=True)
     model.save_pretrained(OUT / "checkpoints/grpo", safe_serialization=True)
     report["training"]["grpo"] = {
-        "steps": 100,
+        "steps": 60,
+        "sampling_temperature": temperature,
+        "informative_reward_groups": informative_groups,
+        "adapter_l2_change": sum(
+            float(((p.detach() - initial_lora[n]) ** 2).sum())
+            for n, p in model.named_parameters()
+            if n in initial_lora
+        )
+        ** 0.5,
         "group_size": 6,
         "updates_per_rollout": 2,
         "clip_epsilon": 0.2,

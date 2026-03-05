@@ -73,6 +73,16 @@ def create_app(data_dir=None, vision=None, planner=None):
 
     @asynccontextmanager
     async def lifespan(app):
+        import fcntl
+
+        lock_file = (store.root / ".instance.lock").open("a")
+        try:
+            fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            lock_file.close()
+            raise RuntimeError("Run only one SceneTrace service per data directory.") from None
+        store.recover()
+
         async def cleanup_loop():
             while True:
                 await asyncio.sleep(60)
@@ -83,6 +93,7 @@ def create_app(data_dir=None, vision=None, planner=None):
         yield
         task.cancel()
         jobs.executor.shutdown(wait=True, cancel_futures=True)
+        lock_file.close()
 
     app = FastAPI(title="SceneTrace", version="1.0.0", lifespan=lifespan)
     app.state.store, app.state.jobs = store, jobs
@@ -161,13 +172,6 @@ def create_app(data_dir=None, vision=None, planner=None):
                     {"detail": "Requests must come from this workspace."}, status_code=403
                 )
         if request.method not in ("GET", "HEAD"):
-            if (
-                request.method in ("POST", "PUT", "PATCH")
-                and "content-length" not in request.headers
-            ):
-                return JSONResponse(
-                    {"detail": "Send a bounded request with a content length."}, status_code=411
-                )
             try:
                 length = int(request.headers.get("content-length", "0"))
             except ValueError:
@@ -177,6 +181,18 @@ def create_app(data_dir=None, vision=None, planner=None):
                 return JSONResponse(
                     {"detail": "Request exceeds this endpoint's size limit."}, status_code=413
                 )
+            received = 0
+            original_receive = request._receive
+
+            async def bounded_receive():
+                nonlocal received
+                event = await original_receive()
+                received += len(event.get("body", b""))
+                if received > limit:
+                    raise HTTPException(413, "Request exceeds this endpoint's size limit.")
+                return event
+
+            request._receive = bounded_receive
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "same-origin"
@@ -272,7 +288,7 @@ def create_app(data_dir=None, vision=None, planner=None):
                     409, "Your workspace holds five videos. Delete one before uploading another."
                 )
             used = store.one("SELECT COALESCE(SUM(bytes),0) AS n FROM videos")["n"]
-            if used > 1_800_000_000 or shutil.disk_usage(store.root).free < 500_000_000:
+            if used > 1_800_000_000 or not jobs.storage_available():
                 raise HTTPException(
                     507, "The public workspace is at capacity. Please try again later."
                 )
@@ -396,6 +412,10 @@ def create_app(data_dir=None, vision=None, planner=None):
         return FileResponse(path, media_type="image/png")
 
     def prepare(owner, args):
+        if not jobs.storage_available():
+            raise BusyError(
+                "The public workspace is at storage capacity. Delete an older video and retry."
+            )
         video = validate_export(store, owner, args)
         count = store.one(
             "SELECT COUNT(*) AS n FROM approvals WHERE video_id=? AND owner=?",

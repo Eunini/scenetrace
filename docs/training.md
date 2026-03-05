@@ -1,7 +1,7 @@
 # Training and evaluation protocol
 
 This experiment post-trains the open-weight **SmolLM2-135M-Instruct** causal language model
-with a rank-8 LoRA adapter on query/key-value projection subsets (q and v projections).
+with a rank-8 LoRA adapter on the query and value projections.
 The task is **five-way constrained tool routing**, not general visual reasoning. The frozen
 CLIP visual encoder is independent and receives no training updates.
 
@@ -29,11 +29,15 @@ are updated. Training is seeded and run on CPU, not simulated.
 ## Finite-action GRPO
 
 The language model assigns a length-normalized completion log-probability to each of the
-five candidates; their softmax defines a categorical policy. For each rollout, six actions
+five candidates; their softmax at temperature 3 defines the training policy. For each rollout, six actions
 are sampled from that current policy. Reward is +1 for the labelled correct route and -1
 otherwise, minus 0.01 per expected tool call. Rewards are standardized within each group.
 Two clipped policy updates use epsilon 0.2 and exact categorical KL to the frozen SFT
-reference, weighted by beta 0.02. One hundred rollout steps are executed.
+reference, weighted by beta 0.02. Sixty rollout steps are executed. Inference uses argmax,
+which is unchanged by temperature. A first, unfinished pilot at temperature 1 produced
+almost exclusively identical rewards after SFT; the completed SFT checkpoint was retained
+and the final RL run adds exploration before any held-out test evaluation. The report includes
+the number of informative reward groups and the actual L2 change in adapter parameters.
 
 This is a finite-action group-relative policy optimization experiment. It does not use
 token-level open-ended generation, train a VLM, optimize answers using a judge, or claim

@@ -18,6 +18,17 @@ def verify():
     if release["stage"] != report["selected_stage"]:
         raise ValueError("The released adapter does not match the evaluated candidate.")
     assert (ROOT / "artifacts/released/adapter_model.safetensors").stat().st_size > 1000
+    if release.get("adapter_sha256"):
+        assert (
+            hashlib.sha256(
+                (ROOT / "artifacts/released/adapter_model.safetensors").read_bytes()
+            ).hexdigest()
+            == release["adapter_sha256"]
+        )
+    for split, checksum in release.get("data_sha256", {}).items():
+        assert (
+            hashlib.sha256((ROOT / f"training/{split}.jsonl").read_bytes()).hexdigest() == checksum
+        )
     for name, value in report["metrics"].items():
         assert value["n"] == len(value["predictions"])
         assert value["correct"] == sum(p["correct"] for p in value["predictions"])

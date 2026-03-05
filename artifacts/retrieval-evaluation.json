@@ -1,0 +1,195 @@
+{
+  "executed_at": "2026-10-28T01:14:33.158009+00:00",
+  "model": "openai/clip-vit-base-patch32",
+  "revision": "3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268",
+  "frames": 32,
+  "video": "Big Buck Bunny first sixty seconds",
+  "annotation_source": "Contact-sheet inspection during implementation; no independent human review",
+  "scope": "Six illustrative queries on one public film; not a held-out real-user quality estimate",
+  "top1_accuracy": 0.8333333333333334,
+  "hit_at_3": 0.8333333333333334,
+  "queries": [
+    {
+      "query": "a bird sitting on a tree branch",
+      "relevant_intervals": [
+        [
+          16.5,
+          21
+        ]
+      ],
+      "top3": [
+        {
+          "seconds": 20.625,
+          "similarity": 0.2660467028617859,
+          "relevant": true
+        },
+        {
+          "seconds": 18.75,
+          "similarity": 0.26595962047576904,
+          "relevant": true
+        },
+        {
+          "seconds": 16.875,
+          "similarity": 0.248589888215065,
+          "relevant": true
+        }
+      ],
+      "top1_correct": true,
+      "hit_at_3": true,
+      "query_seconds": 0.511297254008241
+    },
+    {
+      "query": "a large rabbit",
+      "relevant_intervals": [
+        [
+          44.5,
+          55
+        ],
+        [
+          57,
+          60
+        ]
+      ],
+      "top3": [
+        {
+          "seconds": 46.875,
+          "similarity": 0.30363351106643677,
+          "relevant": true
+        },
+        {
+          "seconds": 54.375,
+          "similarity": 0.2943916320800781,
+          "relevant": true
+        },
+        {
+          "seconds": 48.75,
+          "similarity": 0.28353023529052734,
+          "relevant": true
+        }
+      ],
+      "top1_correct": true,
+      "hit_at_3": true,
+      "query_seconds": 0.039997892919927835
+    },
+    {
+      "query": "pink clouds above green hills",
+      "relevant_intervals": [
+        [
+          1.5,
+          12
+        ]
+      ],
+      "top3": [
+        {
+          "seconds": 3.75,
+          "similarity": 0.30365222692489624,
+          "relevant": true
+        },
+        {
+          "seconds": 5.625,
+          "similarity": 0.28881949186325073,
+          "relevant": true
+        },
+        {
+          "seconds": 1.875,
+          "similarity": 0.2857835292816162,
+          "relevant": true
+        }
+      ],
+      "top1_correct": true,
+      "hit_at_3": true,
+      "query_seconds": 0.04398468998260796
+    },
+    {
+      "query": "flowers next to a stream",
+      "relevant_intervals": [
+        [
+          12.5,
+          15.5
+        ]
+      ],
+      "top3": [
+        {
+          "seconds": 13.125,
+          "similarity": 0.31020408868789673,
+          "relevant": true
+        },
+        {
+          "seconds": 15.0,
+          "similarity": 0.293066143989563,
+          "relevant": true
+        },
+        {
+          "seconds": 11.25,
+          "similarity": 0.22279854118824005,
+          "relevant": false
+        }
+      ],
+      "top1_correct": true,
+      "hit_at_3": true,
+      "query_seconds": 0.040729905012995005
+    },
+    {
+      "query": "a dark hole in a tree",
+      "relevant_intervals": [
+        [
+          33,
+          44
+        ]
+      ],
+      "top3": [
+        {
+          "seconds": 31.875,
+          "similarity": 0.27769389748573303,
+          "relevant": false
+        },
+        {
+          "seconds": 24.375,
+          "similarity": 0.2661769688129425,
+          "relevant": false
+        },
+        {
+          "seconds": 30.0,
+          "similarity": 0.2661723494529724,
+          "relevant": false
+        }
+      ],
+      "top1_correct": false,
+      "hit_at_3": false,
+      "query_seconds": 0.040388948982581496
+    },
+    {
+      "query": "the Big Buck Bunny title",
+      "relevant_intervals": [
+        [
+          0,
+          0.5
+        ],
+        [
+          25.5,
+          29
+        ]
+      ],
+      "top3": [
+        {
+          "seconds": 28.125,
+          "similarity": 0.38538098335266113,
+          "relevant": true
+        },
+        {
+          "seconds": 0.0,
+          "similarity": 0.38263168931007385,
+          "relevant": true
+        },
+        {
+          "seconds": 26.25,
+          "similarity": 0.3788323402404785,
+          "relevant": true
+        }
+      ],
+      "top1_correct": true,
+      "hit_at_3": true,
+      "query_seconds": 0.040819167043082416
+    }
+  ]
+}

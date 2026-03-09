@@ -82,8 +82,10 @@ understanding claim is made. Base model and this adapter: Apache 2.0. Applicatio
 Model and evaluation checksums are in `release.json`.
 """
     (directory / "README.md").write_text(card)
+    shutil.copyfile(ROOT / "licenses/Apache-2.0.txt", directory / "LICENSE")
     output = ROOT / "training/release"
     output.mkdir(exist_ok=True)
+    shutil.copyfile(ROOT / "LICENSE", output / "LICENSE")
     for split in ["train", "validation", "test"]:
         shutil.copyfile(ROOT / f"training/{split}.jsonl", output / f"{split}.jsonl")
     (output / "README.md").write_text("""---

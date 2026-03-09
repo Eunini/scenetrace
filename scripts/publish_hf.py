@@ -69,6 +69,7 @@ def main():
                     "artifacts/training-history.json",
                     "scripts/download_models.py",
                     "docs/**",
+                    "licenses/**",
                 ],
                 ignore_patterns=[
                     "**/node_modules/**",

@@ -150,6 +150,7 @@ class Jobs:
                 raise BusyError("Wait for this video's current job to finish before deleting it.")
             self.store.execute("DELETE FROM videos WHERE id=? AND owner=?", (video_id, owner))
             self.store.execute("DELETE FROM jobs WHERE video_id=? AND owner=?", (video_id, owner))
+            self.store.execute("DELETE FROM turns WHERE owner=?", (owner,))
             shutil.rmtree(self.store.root / video_id, ignore_errors=True)
 
     def cleanup(self):

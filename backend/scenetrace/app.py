@@ -95,7 +95,9 @@ def create_app(data_dir=None, vision=None, planner=None):
         jobs.executor.shutdown(wait=True, cancel_futures=True)
         lock_file.close()
 
-    app = FastAPI(title="SceneTrace", version="1.0.0", lifespan=lifespan)
+    app = FastAPI(
+        title="SceneTrace", version="1.0.0", lifespan=lifespan, docs_url=None, redoc_url=None
+    )
     app.state.store, app.state.jobs = store, jobs
 
     @app.exception_handler(RequestValidationError)
@@ -163,6 +165,7 @@ def create_app(data_dir=None, vision=None, planner=None):
 
     @app.middleware("http")
     async def boundaries(request, call_next):
+        oversized = False
         origin = request.headers.get("origin")
         if request.method not in ("GET", "HEAD", "OPTIONS") and origin:
             expected = f"{request.url.scheme}://{request.url.netloc}"
@@ -185,15 +188,20 @@ def create_app(data_dir=None, vision=None, planner=None):
             original_receive = request._receive
 
             async def bounded_receive():
-                nonlocal received
+                nonlocal received, oversized
                 event = await original_receive()
                 received += len(event.get("body", b""))
                 if received > limit:
+                    oversized = True
                     raise HTTPException(413, "Request exceeds this endpoint's size limit.")
                 return event
 
             request._receive = bounded_receive
         response = await call_next(request)
+        if oversized:
+            response = JSONResponse(
+                {"detail": "Request exceeds this endpoint's size limit."}, status_code=413
+            )
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "same-origin"
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
@@ -240,7 +248,27 @@ def create_app(data_dir=None, vision=None, planner=None):
                 secure=secure,
                 samesite="none" if secure else "lax",
             )
+        recent_jobs = [
+            jobs.job(owner, row["id"])
+            for row in store.all(
+                "SELECT id FROM jobs WHERE owner=? ORDER BY created DESC LIMIT 12", (owner,)
+            )
+        ]
+        recent_turns = [
+            json.loads(row["response"])
+            for row in store.all(
+                "SELECT response FROM turns WHERE owner=? ORDER BY created DESC LIMIT 8", (owner,)
+            )
+        ]
+        pending = store.one(
+            "SELECT a.*,v.filename FROM approvals a JOIN videos v ON a.video_id=v.id "
+            "WHERE a.owner=? AND a.state='pending' ORDER BY a.created DESC LIMIT 1",
+            (owner,),
+        )
         return {
+            "jobs": recent_jobs,
+            "turns": recent_turns,
+            "pending_approval": pending,
             "limits": {
                 "video_mb": 50,
                 "duration_seconds": 180,

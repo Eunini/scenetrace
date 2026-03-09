@@ -28,6 +28,7 @@ COPY assets/ assets/
 COPY artifacts/released/ artifacts/released/
 COPY artifacts/evaluation.json artifacts/training-history.json artifacts/
 COPY docs/ docs/
+COPY licenses/ licenses/
 RUN mkdir -p /home/user/data && chown -R user:user /home/user/data
 USER user
 EXPOSE 7860

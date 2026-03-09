@@ -116,6 +116,13 @@ def test_no_export_runs_until_approved_and_approval_cannot_be_replayed(
     download = alice.get(path + "/download")
     assert download.status_code == 200 and download.headers["content-type"] == "video/mp4"
     assert bob.get(path + "/download").status_code == 404
+    restored = alice.get("/api/bootstrap").json()
+    assert any(
+        j["kind"] == "export" and j["result"].get("download_url") == path + "/download"
+        for j in restored["jobs"]
+        if j["result"]
+    )
+    assert bob.get("/api/bootstrap").json()["jobs"] == []
     target = tmp_path / "export.mp4"
     target.write_bytes(download.content)
     assert 1.1 <= probe(target)["duration"] <= 1.4

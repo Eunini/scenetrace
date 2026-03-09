@@ -55,6 +55,7 @@ type Approval = {
 };
 type Job = {
   id: string;
+  video_id: string;
   kind: string;
   state: string;
   progress: number;
@@ -178,9 +179,22 @@ function App() {
     setVideos(result.videos);
   }
   useEffect(() => {
-    api<{ library: Video[] }>("/api/bootstrap")
+    api<{
+      library: Video[];
+      jobs: Job[];
+      turns: Turn[];
+      pending_approval: Approval | null;
+    }>("/api/bootstrap")
       .then((r) => {
         setVideos(r.library);
+        setJobs(r.jobs);
+        setTurns(r.turns);
+        setApproval(r.pending_approval);
+        const previousSearch = r.turns.find((turn) => turn.plan === "search");
+        if (previousSearch?.matches.length) {
+          setMatches(previousSearch.matches);
+          choose(previousSearch.matches[0]);
+        }
         setBooted(true);
       })
       .catch((e) => setError(message(e)));
@@ -380,7 +394,9 @@ function App() {
       setMatches((old) => old.filter((f) => f.video_id !== video.id));
       if (selected?.video_id === video.id) setSelected(null);
       if (source === video.id) setSource("");
-      setJobs((old) => old.filter((j) => j.state !== "ready"));
+      setJobs((old) => old.filter((j) => j.video_id !== video.id));
+      setTurns([]);
+      if (approval?.video_id === video.id) setApproval(null);
       await refresh();
     } catch (e) {
       setError(message(e));

@@ -95,6 +95,8 @@ test("real sample indexing, model-routed search and an approved playable MP4 exp
   await expect(page.getByRole("link", { name: "Download MP4" })).toBeVisible({
     timeout: 60000,
   });
+  await page.reload();
+  await expect(page.getByRole("link", { name: "Download MP4" })).toBeVisible();
   const [download] = await Promise.all([
     page.waitForEvent("download"),
     page.getByRole("link", { name: "Download MP4" }).click(),

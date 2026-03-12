@@ -1,0 +1,79 @@
+{
+  "index_seconds": 40.519117244984955,
+  "frames": 32,
+  "queries": [
+    {
+      "query": "a large rabbit",
+      "matches": [
+        {
+          "seconds": 46.875,
+          "similarity": 0.2995
+        },
+        {
+          "seconds": 54.375,
+          "similarity": 0.2881
+        },
+        {
+          "seconds": 26.25,
+          "similarity": 0.2717
+        }
+      ]
+    },
+    {
+      "query": "a bird sitting on a branch",
+      "matches": [
+        {
+          "seconds": 18.75,
+          "similarity": 0.2691
+        },
+        {
+          "seconds": 56.25,
+          "similarity": 0.2333
+        },
+        {
+          "seconds": 1.875,
+          "similarity": 0.2285
+        }
+      ]
+    },
+    {
+      "query": "pink clouds above hills",
+      "matches": [
+        {
+          "seconds": 3.75,
+          "similarity": 0.307
+        },
+        {
+          "seconds": 7.5,
+          "similarity": 0.2631
+        },
+        {
+          "seconds": 56.25,
+          "similarity": 0.2597
+        }
+      ]
+    }
+  ],
+  "detection": {
+    "width": 384,
+    "height": 216,
+    "objects": [
+      {
+        "label": "person",
+        "score": 0.9645,
+        "box": [
+          126.98,
+          49.42,
+          208.57,
+          184.02
+        ]
+      }
+    ]
+  },
+  "mask": {
+    "png": true,
+    "foreground_pixels": 7264,
+    "total_pixels": 82944,
+    "method": "GrabCut, initialized from a bounding box"
+  }
+}

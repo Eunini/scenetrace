@@ -1,0 +1,24 @@
+{
+  "checked_at": "2026-10-28T01:38:00.442962+00:00",
+  "backend": {
+    "passed": 20,
+    "failed": 0
+  },
+  "browser_core": {
+    "passed": 3,
+    "skipped": 1,
+    "failed": 0
+  },
+  "browser_upload": {
+    "passed": 2,
+    "failed": 0
+  },
+  "actual_models": true,
+  "model_gate": "passed",
+  "npm_vulnerabilities": 0,
+  "notes": [
+    "Core browser run includes actual video indexing, trained-model routing, approved MP4 export, FFprobe validation and reload recovery.",
+    "Separate upload run covers desktop and mobile using a generated two-second video.",
+    "Cookies, browser storage and network traces are not saved in these artifacts."
+  ]
+}

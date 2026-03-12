@@ -110,6 +110,11 @@ async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
       ...options,
       signal: controller.signal,
     });
+    if (!response.headers.get("content-type")?.includes("application/json")) {
+      throw new Error(
+        "The workspace server is starting or unavailable. Refresh this page in a moment.",
+      );
+    }
     const body = await response.json();
     if (!response.ok)
       throw new Error(
@@ -187,10 +192,12 @@ function App() {
     }>("/api/bootstrap")
       .then((r) => {
         setVideos(r.library);
-        setJobs(r.jobs);
-        setTurns(r.turns);
-        setApproval(r.pending_approval);
-        const previousSearch = r.turns.find((turn) => turn.plan === "search");
+        setJobs(r.jobs || []);
+        setTurns(r.turns || []);
+        setApproval(r.pending_approval || null);
+        const previousSearch = (r.turns || []).find(
+          (turn) => turn.plan === "search",
+        );
         if (previousSearch?.matches.length) {
           setMatches(previousSearch.matches);
           choose(previousSearch.matches[0]);

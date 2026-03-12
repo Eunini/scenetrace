@@ -1,0 +1,19 @@
+npm notice run scenetrace-web@1.0.0 test
+npm notice run playwright test --grep visitor can upload
+
+Running 2 tests using 1 worker
+
+(node:3405433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3405433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓  1 [desktop] › tests/workspace.spec.ts:136:1 › visitor can upload their own file, query its inventory and delete it (10.3s)
+(node:3406284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3406284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓  2 [mobile] › tests/workspace.spec.ts:136:1 › visitor can upload their own file, query its inventory and delete it (10.3s)
+
+  2 passed (28.2s)

@@ -1,0 +1,17 @@
+{
+  "stage": "sft",
+  "base_model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "base_revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+  "actual_training_time": "2026-10-28T01:16:24.058767+00:00",
+  "evaluation_sha256": "b9afa54c3fff0e24fd50d9e283b5e4e98fd793987de5cfa4fa60040016a4e490",
+  "adapter_sha256": "993e6e6ad38c5dea860b924c7efb7fac9e55d4b968e2b6767124526f15f89ec0",
+  "data_sha256": {
+    "train": "68ded8605f1418ab55e140f2366f54559fc1061d3c5d05c94c4765aa5edcbae0",
+    "validation": "fc224d623dd5c065ffb04f69270e364d57380a962013ca716fba0e8eda4e6773",
+    "test": "4030419862db5660a4f85a96f905a9710a1318f6898b0d27c787a3b420060e58"
+  },
+  "comparison_sha256": {
+    "sft": "993e6e6ad38c5dea860b924c7efb7fac9e55d4b968e2b6767124526f15f89ec0",
+    "grpo": "c7a721440a7c81981cc5e070ff9944eda369cbe2c616076a14dd55f9cfbeaf68"
+  }
+}

@@ -12,6 +12,12 @@ def main():
     report = json.loads((ROOT / "artifacts/evaluation.json").read_text())
     assert report["release_gate"]["passed"]
     directory = ROOT / "artifacts/released"
+    for stage in ["sft", "grpo"]:
+        shutil.copytree(
+            ROOT / f"artifacts/checkpoints/{stage}",
+            directory / f"comparisons/{stage}",
+            dirs_exist_ok=True,
+        )
     release = json.loads((directory / "release.json").read_text())
     release["adapter_sha256"] = hashlib.sha256(
         (directory / "adapter_model.safetensors").read_bytes()
@@ -19,6 +25,12 @@ def main():
     release["data_sha256"] = {
         s: hashlib.sha256((ROOT / f"training/{s}.jsonl").read_bytes()).hexdigest()
         for s in ["train", "validation", "test"]
+    }
+    release["comparison_sha256"] = {
+        stage: hashlib.sha256(
+            (directory / f"comparisons/{stage}/adapter_model.safetensors").read_bytes()
+        ).hexdigest()
+        for stage in ["sft", "grpo"]
     }
     (directory / "release.json").write_text(json.dumps(release, indent=2) + "\n")
     rows = []
@@ -53,7 +65,8 @@ Three epochs of completion-only SFT, then 60 finite-action GRPO steps with group
 sampling temperature 3,
 two clipped updates per rollout, exact routing reward, and an SFT-reference KL penalty.
 Model selection used validation questions; the held-out test was evaluated afterward.
-The released stage is **{report["selected_stage"].upper()}**. RL outcomes are reported even
+The released stage is **{report["selected_stage"].upper()}**. Both comparison checkpoints
+are included under `comparisons/sft` and `comparisons/grpo`. RL outcomes are reported even
 if the gate selects SFT. Nothing was trained in the retrospective Git timestamp period.
 
 | Stage | Correct held-out routes | Accuracy | Mean CPU routing latency |
@@ -82,6 +95,8 @@ understanding claim is made. Base model and this adapter: Apache 2.0. Applicatio
 Model and evaluation checksums are in `release.json`.
 """
     (directory / "README.md").write_text(card)
+    for name in ["evaluation.json", "training-history.json", "sft-provenance.json"]:
+        shutil.copyfile(ROOT / "artifacts" / name, directory / name)
     shutil.copyfile(ROOT / "licenses/Apache-2.0.txt", directory / "LICENSE")
     output = ROOT / "training/release"
     output.mkdir(exist_ok=True)

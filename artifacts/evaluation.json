@@ -1,0 +1,1612 @@
+{
+  "executed_at": "2026-10-28T01:16:24.058767+00:00",
+  "seed": 37,
+  "base_model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "base_revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+  "task": "Five-way constrained video-tool routing, not free-form video reasoning",
+  "split_sizes": {
+    "train": 480,
+    "validation": 40,
+    "test": 40
+  },
+  "split_policy": "Disjoint question template groups; all questions are synthetic",
+  "training": {
+    "sft": {
+      "epochs": 3,
+      "batch_size": 8,
+      "learning_rate": 0.0008
+    },
+    "grpo": {
+      "steps": 60,
+      "sampling_temperature": 3.0,
+      "informative_reward_groups": 8,
+      "adapter_l2_change": 0.8036873051058918,
+      "group_size": 6,
+      "updates_per_rollout": 2,
+      "clip_epsilon": 0.2,
+      "beta": 0.02,
+      "learning_rate": 8e-05,
+      "action_space": [
+        "search",
+        "library",
+        "count",
+        "export",
+        "inspect"
+      ],
+      "reward": "+1 correct plan, -1 wrong plan; -0.01 per tool call"
+    }
+  },
+  "metrics": {
+    "base_validation": {
+      "n": 40,
+      "correct": 8,
+      "accuracy": 0.2,
+      "mean_latency_seconds": 1.6653335647744825,
+      "estimated_dollars_per_correct": 9.251853137636015e-05,
+      "cost_assumption": "CPU compute at $0.04/hour; excludes storage and idle time, not a bill",
+      "per_plan": {
+        "search": 1.0,
+        "library": 0.0,
+        "count": 0.0,
+        "export": 0.0,
+        "inspect": 0.0
+      },
+      "predictions": [
+        {
+          "id": "library-13-1",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-13-1",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "inspect-13-0",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "library-13-3",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "search-13-3",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "export-13-2",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "library-13-2",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-13-3",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "search-13-0",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "library-12-0",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "search-12-1",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "search-13-2",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "search-12-3",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-13-1",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "export-12-0",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "search-12-0",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-12-0",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "inspect-12-1",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-12-1",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-12-2",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "search-12-2",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-13-2",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "library-12-1",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-13-2",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "library-13-0",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "search-13-1",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "export-13-3",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-13-0",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "export-13-0",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "export-12-3",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "inspect-12-3",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "library-12-2",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "inspect-13-3",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-12-0",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "library-12-3",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "export-12-2",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "export-12-1",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-12-3",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "inspect-12-2",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "export-13-1",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        }
+      ]
+    },
+    "sft_validation": {
+      "n": 40,
+      "correct": 39,
+      "accuracy": 0.975,
+      "mean_latency_seconds": 1.7860010994249023,
+      "estimated_dollars_per_correct": 2.0353288882335072e-05,
+      "cost_assumption": "CPU compute at $0.04/hour; excludes storage and idle time, not a bill",
+      "per_plan": {
+        "search": 1.0,
+        "library": 1.0,
+        "count": 1.0,
+        "export": 0.875,
+        "inspect": 1.0
+      },
+      "predictions": [
+        {
+          "id": "library-13-1",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "count-13-1",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "inspect-13-0",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "library-13-3",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "search-13-3",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "export-13-2",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "library-13-2",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "count-13-3",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "search-13-0",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "library-12-0",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "search-12-1",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "search-13-2",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "search-12-3",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-13-1",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "export-12-0",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "search-12-0",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-12-0",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "inspect-12-1",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "count-12-1",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "count-12-2",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "search-12-2",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-13-2",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "library-12-1",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "count-13-2",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "library-13-0",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "search-13-1",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "export-13-3",
+          "expected": "export",
+          "predicted": "library",
+          "correct": false
+        },
+        {
+          "id": "count-13-0",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "export-13-0",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "export-12-3",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "inspect-12-3",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "library-12-2",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "inspect-13-3",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "count-12-0",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "library-12-3",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "export-12-2",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "export-12-1",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "count-12-3",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "inspect-12-2",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "export-13-1",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        }
+      ]
+    },
+    "grpo_validation": {
+      "n": 40,
+      "correct": 37,
+      "accuracy": 0.925,
+      "mean_latency_seconds": 1.8756506524339784,
+      "estimated_dollars_per_correct": 2.2530338167375117e-05,
+      "cost_assumption": "CPU compute at $0.04/hour; excludes storage and idle time, not a bill",
+      "per_plan": {
+        "search": 1.0,
+        "library": 1.0,
+        "count": 1.0,
+        "export": 0.625,
+        "inspect": 1.0
+      },
+      "predictions": [
+        {
+          "id": "library-13-1",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "count-13-1",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "inspect-13-0",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "library-13-3",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "search-13-3",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "export-13-2",
+          "expected": "export",
+          "predicted": "library",
+          "correct": false
+        },
+        {
+          "id": "library-13-2",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "count-13-3",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "search-13-0",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "library-12-0",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "search-12-1",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "search-13-2",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "search-12-3",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-13-1",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "export-12-0",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "search-12-0",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-12-0",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "inspect-12-1",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "count-12-1",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "count-12-2",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "search-12-2",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-13-2",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "library-12-1",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "count-13-2",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "library-13-0",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "search-13-1",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "export-13-3",
+          "expected": "export",
+          "predicted": "library",
+          "correct": false
+        },
+        {
+          "id": "count-13-0",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "export-13-0",
+          "expected": "export",
+          "predicted": "library",
+          "correct": false
+        },
+        {
+          "id": "export-12-3",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "inspect-12-3",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "library-12-2",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "inspect-13-3",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "count-12-0",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "library-12-3",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "export-12-2",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "export-12-1",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "count-12-3",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "inspect-12-2",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "export-13-1",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        }
+      ]
+    },
+    "base_test": {
+      "n": 40,
+      "correct": 8,
+      "accuracy": 0.2,
+      "mean_latency_seconds": 1.5313562951108906,
+      "estimated_dollars_per_correct": 8.507534972838282e-05,
+      "cost_assumption": "CPU compute at $0.04/hour; excludes storage and idle time, not a bill",
+      "per_plan": {
+        "search": 1.0,
+        "library": 0.0,
+        "count": 0.0,
+        "export": 0.0,
+        "inspect": 0.0
+      },
+      "predictions": [
+        {
+          "id": "library-15-1",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-15-1",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "inspect-15-0",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "library-15-3",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "search-15-3",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "export-15-2",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "library-15-2",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-15-3",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "search-15-0",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "library-14-0",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "search-14-1",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "search-15-2",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "search-14-3",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-15-1",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "export-14-0",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "search-14-0",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-14-0",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "inspect-14-1",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-14-1",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-14-2",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "search-14-2",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-15-2",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "library-14-1",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-15-2",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "library-15-0",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "search-15-1",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "export-15-3",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-15-0",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "export-15-0",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "export-14-3",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "inspect-14-3",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "library-14-2",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "inspect-15-3",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-14-0",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "library-14-3",
+          "expected": "library",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "export-14-2",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "export-14-1",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "count-14-3",
+          "expected": "count",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "inspect-14-2",
+          "expected": "inspect",
+          "predicted": "search",
+          "correct": false
+        },
+        {
+          "id": "export-15-1",
+          "expected": "export",
+          "predicted": "search",
+          "correct": false
+        }
+      ]
+    },
+    "sft_test": {
+      "n": 40,
+      "correct": 40,
+      "accuracy": 1.0,
+      "mean_latency_seconds": 1.659414808722795,
+      "estimated_dollars_per_correct": 1.8437942319142167e-05,
+      "cost_assumption": "CPU compute at $0.04/hour; excludes storage and idle time, not a bill",
+      "per_plan": {
+        "search": 1.0,
+        "library": 1.0,
+        "count": 1.0,
+        "export": 1.0,
+        "inspect": 1.0
+      },
+      "predictions": [
+        {
+          "id": "library-15-1",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "count-15-1",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "inspect-15-0",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "library-15-3",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "search-15-3",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "export-15-2",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "library-15-2",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "count-15-3",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "search-15-0",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "library-14-0",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "search-14-1",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "search-15-2",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "search-14-3",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-15-1",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "export-14-0",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "search-14-0",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-14-0",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "inspect-14-1",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "count-14-1",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "count-14-2",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "search-14-2",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-15-2",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "library-14-1",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "count-15-2",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "library-15-0",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "search-15-1",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "export-15-3",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "count-15-0",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "export-15-0",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "export-14-3",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "inspect-14-3",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "library-14-2",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "inspect-15-3",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "count-14-0",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "library-14-3",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "export-14-2",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "export-14-1",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "count-14-3",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "inspect-14-2",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "export-15-1",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        }
+      ]
+    },
+    "grpo_test": {
+      "n": 40,
+      "correct": 40,
+      "accuracy": 1.0,
+      "mean_latency_seconds": 1.6095239005604527,
+      "estimated_dollars_per_correct": 1.7883598895116142e-05,
+      "cost_assumption": "CPU compute at $0.04/hour; excludes storage and idle time, not a bill",
+      "per_plan": {
+        "search": 1.0,
+        "library": 1.0,
+        "count": 1.0,
+        "export": 1.0,
+        "inspect": 1.0
+      },
+      "predictions": [
+        {
+          "id": "library-15-1",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "count-15-1",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "inspect-15-0",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "library-15-3",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "search-15-3",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "export-15-2",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "library-15-2",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "count-15-3",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "search-15-0",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "library-14-0",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "search-14-1",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "search-15-2",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "search-14-3",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-15-1",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "export-14-0",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "search-14-0",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-14-0",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "inspect-14-1",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "count-14-1",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "count-14-2",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "search-14-2",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "inspect-15-2",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "library-14-1",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "count-15-2",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "library-15-0",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "search-15-1",
+          "expected": "search",
+          "predicted": "search",
+          "correct": true
+        },
+        {
+          "id": "export-15-3",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "count-15-0",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "export-15-0",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "export-14-3",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "inspect-14-3",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "library-14-2",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "inspect-15-3",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "count-14-0",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "library-14-3",
+          "expected": "library",
+          "predicted": "library",
+          "correct": true
+        },
+        {
+          "id": "export-14-2",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "export-14-1",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        },
+        {
+          "id": "count-14-3",
+          "expected": "count",
+          "predicted": "count",
+          "correct": true
+        },
+        {
+          "id": "inspect-14-2",
+          "expected": "inspect",
+          "predicted": "inspect",
+          "correct": true
+        },
+        {
+          "id": "export-15-1",
+          "expected": "export",
+          "predicted": "export",
+          "correct": true
+        }
+      ]
+    }
+  },
+  "trainable_parameters": 460800,
+  "resumed_sft": {
+    "checkpoint_sha256": "993e6e6ad38c5dea860b924c7efb7fac9e55d4b968e2b6767124526f15f89ec0",
+    "completed_epoch_losses": [
+      {
+        "stage": "sft",
+        "epoch": 1,
+        "loss": 1.3493726941291242
+      },
+      {
+        "stage": "sft",
+        "epoch": 2,
+        "loss": 0.020483943009215484
+      },
+      {
+        "stage": "sft",
+        "epoch": 3,
+        "loss": 0.0002131523306161398
+      }
+    ],
+    "checkpoint_mtime_unix": 1793149771.3976686,
+    "note": "Completed three-epoch SFT checkpoint reused while adding explicit RL exploration, before any held-out test evaluation."
+  },
+  "selected_stage": "sft",
+  "release_gate": {
+    "passed": true,
+    "rule": "Validation accuracy >= 0.75; frozen candidate must not underperform base on held-out test"
+  },
+  "elapsed_seconds": 1007.3196682929993
+}

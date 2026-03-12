@@ -29,6 +29,15 @@ def verify():
         assert (
             hashlib.sha256((ROOT / f"training/{split}.jsonl").read_bytes()).hexdigest() == checksum
         )
+    for stage, checksum in release.get("comparison_sha256", {}).items():
+        assert (
+            hashlib.sha256(
+                (
+                    ROOT / f"artifacts/released/comparisons/{stage}/adapter_model.safetensors"
+                ).read_bytes()
+            ).hexdigest()
+            == checksum
+        )
     for name, value in report["metrics"].items():
         assert value["n"] == len(value["predictions"])
         assert value["correct"] == sum(p["correct"] for p in value["predictions"])

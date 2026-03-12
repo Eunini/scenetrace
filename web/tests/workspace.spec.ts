@@ -1,7 +1,10 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile, unlink } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import { randomUUID } from "node:crypto";
+import { join } from "node:path";
 
 test("workspace, navigation, privacy information and keyboard access are usable", async ({
   page,
@@ -128,4 +131,78 @@ test("real sample indexing, model-routed search and an approved playable MP4 exp
     page.getByText("Workspace cleared.", { exact: true }),
   ).toBeVisible();
   expect(errors).toEqual([]);
+});
+
+test("visitor can upload their own file, query its inventory and delete it", async ({
+  page,
+}) => {
+  const path = join(tmpdir(), `scenetrace-upload-${randomUUID()}.mp4`);
+  execFileSync("ffmpeg", [
+    "-nostdin",
+    "-v",
+    "error",
+    "-f",
+    "lavfi",
+    "-i",
+    "testsrc2=size=128x72:rate=4",
+    "-t",
+    "2",
+    "-c:v",
+    "libx264",
+    "-threads",
+    "1",
+    "-pix_fmt",
+    "yuv420p",
+    "-y",
+    path,
+  ]);
+  try {
+    await page.goto("/");
+    await expect(
+      page.getByRole("button", { name: "Explore sample" }),
+    ).toBeEnabled();
+    await page
+      .getByLabel("Choose video file")
+      .setInputFiles({
+        name: "personal-footage-Ẹ̀-test.mp4",
+        mimeType: "video/mp4",
+        buffer: await readFile(path),
+      });
+    await expect(
+      page.getByText("Video indexing · ready", { exact: false }),
+    ).toBeVisible({ timeout: 120000 });
+    await page
+      .getByRole("textbox", { name: "Ask about your footage" })
+      .fill("How many videos have I uploaded?");
+    await page.getByRole("button", { name: "Search", exact: true }).click();
+    await expect(
+      page.getByText(/Your ready footage contains 1 videos/),
+    ).toBeVisible({ timeout: 60000 });
+    await page
+      .getByRole("textbox", { name: "Ask about your footage" })
+      .fill("Find footage showing red shapes");
+    await page.getByRole("button", { name: "Search", exact: true }).click();
+    await expect(
+      page.getByRole("button", { name: /Play result 1 at/ }),
+    ).toBeVisible({ timeout: 60000 });
+    await expect(page.getByLabel("Selected source video")).toBeVisible();
+    page.on("dialog", (dialog) => dialog.accept());
+    await page
+      .getByRole("button", {
+        name: "Delete personal-footage-Ẹ̀-test.mp4",
+        exact: true,
+      })
+      .click();
+    await expect(page.getByRole("button", { name: /Play result/ })).toHaveCount(
+      0,
+    );
+    await expect(
+      page.getByRole("button", {
+        name: "Delete personal-footage-Ẹ̀-test.mp4",
+        exact: true,
+      }),
+    ).toHaveCount(0);
+  } finally {
+    await unlink(path);
+  }
 });

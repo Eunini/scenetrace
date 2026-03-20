@@ -18,6 +18,20 @@ def main():
             directory / f"comparisons/{stage}",
             dirs_exist_ok=True,
         )
+        metric = report["metrics"][f"{stage}_test"]
+        (directory / f"comparisons/{stage}/README.md").write_text(
+            f"# SceneTrace {stage.upper()} comparison checkpoint\n\n"
+            f"Actual rank-8 LoRA adapter for five-way tool routing. Held-out synthetic test: "
+            f"{metric['correct']}/{metric['n']} correct. "
+            f"The validation-selected served stage is {report['selected_stage'].upper()}.\n\n"
+            "See the parent model card and evaluation.json for training, provenance and limitations. "
+            "Base and adapter license: Apache 2.0.\n"
+        )
+    for folder in [directory, directory / "comparisons/sft", directory / "comparisons/grpo"]:
+        config_path = folder / "adapter_config.json"
+        config = json.loads(config_path.read_text())
+        config["revision"] = report["base_revision"]
+        config_path.write_text(json.dumps(config, indent=2) + "\n")
     release = json.loads((directory / "release.json").read_text())
     release["adapter_sha256"] = hashlib.sha256(
         (directory / "adapter_model.safetensors").read_bytes()

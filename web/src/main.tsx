@@ -540,7 +540,7 @@ function App() {
           <ShieldCheck size={20} />
           <strong>Yours for this session.</strong>
           <p>
-            Footage expires after 24 hours or a host restart. Download what you
+            Footage expires after 24 hours. Download what you
             want to keep.
           </p>
           <button
@@ -1300,8 +1300,7 @@ function App() {
                   <h2>Your visitor workspace</h2>
                   <p>
                     Uploads are processed on the server, isolated by a signed,
-                    HTTP-only visitor cookie. They expire after 24 hours and may
-                    disappear sooner on a host restart. No sign-up, advertising
+                    HTTP-only visitor cookie. They expire after 24 hours. Keep your originals. No sign-up, advertising
                     tracker, or automatic training on your uploads.
                   </p>
                 </article>

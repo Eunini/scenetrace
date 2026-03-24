@@ -1,0 +1,33 @@
+[Unit]
+Description=SceneTrace video workspace
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=kamicode
+Group=kamicode
+WorkingDirectory=/home/kamicode/aps/alma/output/scenetrace
+EnvironmentFile=/home/kamicode/.local/state/scenetrace/service.env
+Environment=TOKENIZERS_PARALLELISM=false
+Environment=HF_HUB_DISABLE_IMPLICIT_TOKEN=1
+Environment=OMP_NUM_THREADS=2
+Environment=MKL_NUM_THREADS=2
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/kamicode/aps/alma/output/scenetrace/.venv/bin/uvicorn scenetrace.app:app --host 127.0.0.1 --port 4360 --no-access-log --proxy-headers --forwarded-allow-ips 127.0.0.1
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=35
+KillMode=mixed
+CPUQuota=200%
+MemoryMax=4G
+TasksMax=96
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/kamicode/.local/state/scenetrace /home/kamicode/.cache/huggingface
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

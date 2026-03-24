@@ -278,7 +278,7 @@ def create_app(data_dir=None, vision=None, planner=None):
                 "tool_calls": 4,
             },
             "library": store.library(owner),
-            "privacy": "Session storage; expires after 24 hours or a host restart.",
+            "privacy": "Server workspace; expires after 24 hours. Keep your originals.",
             "model": {
                 "planner": "SmolLM2-135M + evaluated SceneTrace LoRA",
                 "retriever": "CLIP ViT-B/32",

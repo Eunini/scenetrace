@@ -5,6 +5,6 @@
   "buildCommand": "npm run build --prefix web",
   "outputDirectory": "web/dist",
   "rewrites": [
-    {"source": "/api/:path*", "destination": "https://ineeoluwa-scenetrace.hf.space/api/:path*"}
+    {"source": "/api/:path*", "destination": "https://scenetrace.193-203-15-98.sslip.io/api/:path*"}
   ]
 }

@@ -44,8 +44,10 @@ traffic out of the inference path. PyTorch publisher checkpoints are loaded with
 `weights_only=True`; LoRA artifacts use safetensors. No model remote code is trusted.
 
 Set `SCENETRACE_DATA` to a persistent mounted directory and `SCENETRACE_SESSION_SECRET` to a
-stable secret for durable self-hosted workspaces. The free Hugging Face deployment has an
-ephemeral filesystem. It is a public early release, not an archival hosting system or an
+stable secret for durable self-hosted workspaces. The current backend runs as a restricted systemd service behind Nginx and TLS on the
+existing server; the Vercel frontend proxies requests to it. A Hugging Face static Space
+launches the public app. Docker CPU Spaces required PRO at publication time, so no Docker
+Space or paid subscription was created. The public working directory has a 24-hour TTL. It is a public early release, not an archival hosting system or an
 SLA-backed multi-tenant service. A malicious client can create additional visitor sessions;
 the queue, disk and concurrent-inference limits bound shared resources, but do not substitute
 for authenticated quotas and infrastructure abuse protection at larger scale.

@@ -17,7 +17,7 @@ Search results link to the actual source video; similarity scores are not probab
 proof that an event happened.
 
 [Open the workspace](https://scenetrace-inioluwa.vercel.app) ·
-[Hugging Face app](https://huggingface.co/spaces/Ineeoluwa/scenetrace) ·
+[Hugging Face launcher](https://huggingface.co/spaces/Ineeoluwa/scenetrace) ·
 [Router weights](https://huggingface.co/Ineeoluwa/scenetrace-router-135m) ·
 [Training traces](https://huggingface.co/datasets/Ineeoluwa/scenetrace-tool-traces)
 
@@ -44,7 +44,7 @@ artifacts retain their actual execution times. No user or customer counts are as
 - Object detection and a bounding-box-assisted image mask for inspecting a selected frame.
 
 The public CPU deployment is a session workspace, not an archival video hosting service.
-Uploads expire after 24 hours and can disappear on a host restart. Download exports you want
+Uploads expire after 24 hours. Download exports you want
 to keep. A persistent mounted data directory is supported for self-hosting.
 
 ## Development
@@ -125,12 +125,12 @@ the release gate and the real browser workflow.
 ## Deployment and privacy
 
 The Docker image serves the complete application on port 7860. `vercel.json` serves the
-same frontend with an API proxy to the Hugging Face Docker Space. Public uploads are
+same frontend with an API proxy to the existing CPU server. The Hugging Face Space is a static launcher for the live application. Docker hosting on Hugging Face requires PRO; no subscription was added. Public uploads are
 session-scoped, not placed in a public dataset or used automatically for training.
 
 For persistent self-hosting, mount a writable directory as `SCENETRACE_DATA` and set a stable
 private `SCENETRACE_SESSION_SECRET`. Run one Uvicorn worker per data directory. Public hosting
-uses ephemeral disk, a shared six-job queue and CPU inference. It can sleep when idle and
+uses a private working directory, a shared six-job queue and CPU inference. It
 has no availability SLA. Authentication with durable accounts, distributed jobs, external
 object storage and independently calibrated real-user evaluation are future scale-up work,
 not capabilities claimed by this release. See [architecture and operational boundaries](docs/architecture.md).

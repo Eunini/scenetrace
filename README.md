@@ -124,8 +124,7 @@ the release gate and the real browser workflow.
 
 ## Deployment and privacy
 
-The Docker image serves the complete application on port 7860. `vercel.json` serves the
-same frontend with an API proxy to the existing CPU server. The Hugging Face Space is a static launcher for the live application. Docker hosting on Hugging Face requires PRO; no subscription was added. Public uploads are
+The Docker image serves the complete application on port 7860. The live release runs on the existing CPU server behind Nginx and TLS. `vercel.json` redirects its entry URL to that same-origin workspace. The Hugging Face Space is a static launcher for the live application. Docker hosting on Hugging Face requires PRO; no subscription was added. Public uploads are
 session-scoped, not placed in a public dataset or used automatically for training.
 
 For persistent self-hosting, mount a writable directory as `SCENETRACE_DATA` and set a stable

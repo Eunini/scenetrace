@@ -1,0 +1,5 @@
+artifacts/** linguist-generated=true
+training/*.jsonl linguist-generated=true
+training/release/** linguist-generated=true
+evidence/** linguist-generated=true
+web/package-lock.json linguist-generated=true

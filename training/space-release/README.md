@@ -12,8 +12,8 @@ short_description: Search your footage. Keep the evidence.
 # SceneTrace live workspace
 
 This free static Space embeds the public SceneTrace application. The actual Python backend,
-open-weight models and video processing run on the existing CPU server; the frontend is on
-Vercel. Docker CPU hosting on Hugging Face required PRO, so this release uses a static
+open-weight models, frontend and video processing run on the existing CPU server. Vercel
+provides a stable entry link that redirects to the same-origin workspace. Docker CPU hosting on Hugging Face required PRO, so this release uses a static
 launcher and adds no hosting subscription.
 
 [Open the workspace directly](https://scenetrace-inioluwa.vercel.app) ·

@@ -4,7 +4,11 @@
   "installCommand": "npm ci --prefix web --ignore-scripts",
   "buildCommand": "npm run build --prefix web",
   "outputDirectory": "web/dist",
-  "rewrites": [
-    {"source": "/api/:path*", "destination": "https://scenetrace.193-203-15-98.sslip.io/api/:path*"}
+  "redirects": [
+    {
+      "source": "/:path*",
+      "destination": "https://scenetrace.193-203-15-98.sslip.io/:path*",
+      "permanent": false
+    }
   ]
 }

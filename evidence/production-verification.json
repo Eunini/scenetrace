@@ -1,0 +1,38 @@
+{
+  "checked_at": "2026-10-28T02:02:38.384735+00:00",
+  "result": "pass",
+  "url": "https://scenetrace.193-203-15-98.sslip.io",
+  "browser": {
+    "startTime": "2026-10-28T01:59:04.152Z",
+    "duration": 90895.647,
+    "expected": 5,
+    "skipped": 1,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "coverage": [
+    "desktop and mobile workspace",
+    "automated accessibility and keyboard access",
+    "actual sample indexing and trained model routing",
+    "explicit export approval",
+    "MP4 download checked with FFprobe",
+    "reload recovery",
+    "personal file upload and deletion on desktop and mobile"
+  ],
+  "hosting": {
+    "application": "existing CPU server, Nginx and TLS",
+    "process": "restricted systemd service, two CPU quota and 4 GiB memory ceiling",
+    "data_retention_hours": 24,
+    "hugging_face": "free static launcher; model and dataset public",
+    "new_paid_subscription": false
+  },
+  "model": {
+    "selected_stage": "sft",
+    "selection": "validation-selected before held-out test",
+    "base_test_correct": 8,
+    "sft_test_correct": 40,
+    "grpo_test_correct": 40,
+    "test_count": 40,
+    "scope": "synthetic five-way routing; no real-user quality or adoption claim"
+  }
+}

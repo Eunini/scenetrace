@@ -1,7 +1,7 @@
 # Architecture and operational boundaries
 
-The React/Vite workspace is served by FastAPI in one Docker service. A Vercel frontend
-can proxy `/api/*` to the same service. All media and model inference stay on the server;
+The React/Vite workspace is served by FastAPI in one Docker service. A Vercel entry link
+redirects to the same-origin service. All media and model inference stay on the server;
 the browser receives only that visitor's metadata, protected media and tool results.
 
 ## Data and execution
@@ -45,7 +45,7 @@ traffic out of the inference path. PyTorch publisher checkpoints are loaded with
 
 Set `SCENETRACE_DATA` to a persistent mounted directory and `SCENETRACE_SESSION_SECRET` to a
 stable secret for durable self-hosted workspaces. The current backend runs as a restricted systemd service behind Nginx and TLS on the
-existing server; the Vercel frontend proxies requests to it. A Hugging Face static Space
+existing server; the Vercel entry URL redirects visitors to it. A Hugging Face static Space
 launches the public app. Docker CPU Spaces required PRO at publication time, so no Docker
 Space or paid subscription was created. The public working directory has a 24-hour TTL. It is a public early release, not an archival hosting system or an
 SLA-backed multi-tenant service. A malicious client can create additional visitor sessions;
@@ -70,3 +70,7 @@ media/job/approval/feedback lookup to the visitor, validates identifiers and dis
 tool fields. Tests exercise cross-visitor access, malformed media, non-finite JSON numbers,
 out-of-range exports, repeated approvals and safe deletion. Host restart, decoding errors,
 missing frames, full queues and missing selections produce visible recoverable states.
+
+The initial Vercel API-proxy deployment received security checkpoint challenges on background
+API requests. The final deployment uses a same-origin HTTPS application and a Vercel redirect;
+it does not disable the provider firewall or change backend authorization.

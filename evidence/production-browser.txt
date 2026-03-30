@@ -1,0 +1,24 @@
+npm notice run scenetrace-web@1.0.0 test
+npm notice run playwright test
+
+Running 6 tests using 1 worker
+
+(node:3474003) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3474003) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/workspace.spec.ts:9:1 › workspace, navigation, privacy information and keyboard access are usable (3.9s)
+  ✓  2 [desktop] › tests/workspace.spec.ts:53:1 › real sample indexing, model-routed search and an approved playable MP4 export (55.3s)
+
+  ✓  3 [desktop] › tests/workspace.spec.ts:136:1 › visitor can upload their own file, query its inventory and delete it (9.1s)
+(node:3477777) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3477777) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [mobile] › tests/workspace.spec.ts:9:1 › workspace, navigation, privacy information and keyboard access are usable (4.8s)
+  -  5 [mobile] › tests/workspace.spec.ts:53:1 › real sample indexing, model-routed search and an approved playable MP4 export
+
+  ✓  6 [mobile] › tests/workspace.spec.ts:136:1 › visitor can upload their own file, query its inventory and delete it (10.3s)
+
+  1 skipped
+  5 passed (1.5m)
